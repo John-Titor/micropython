@@ -1,5 +1,7 @@
 
 #include "py/mphal.h"
+#include "py/runtime.h"
+#include "py/stream.h"
 
 #include "s32k144.h"
 
@@ -87,16 +89,12 @@ void mp_hal_stdout_tx_strn(const char *str, size_t len) {
 static volatile struct {
     char    buf[64];
     uint8_t head, tail;
+    int     interrupt;
 } cons_buf;
 
 #define CONS_PTR_NEXT(_p)   ((_p + 1) % sizeof(cons_buf.buf))
 #define CONS_BUF_FULL       (CONS_PTR_NEXT(cons_buf.tail) == cons_buf.head)
 #define CONS_BUF_EMPTY      (cons_buf.head == cons_buf.tail)
-#define CONS_BUF_PUSH(_v)                                   \
-    if (!CONS_BUF_FULL) {                                   \
-        cons_buf.buf[cons_buf.tail] = _v;                   \
-        cons_buf.tail = CONS_PTR_NEXT(cons_buf.tail);       \
-    }
 #define CONS_BUF_POP(_v)                                    \
     if (CONS_BUF_EMPTY) {                                   \
         _v = -1;                                            \
@@ -104,6 +102,19 @@ static volatile struct {
         _v = cons_buf.buf[cons_buf.head];                   \
         cons_buf.head = CONS_PTR_NEXT(cons_buf.head);       \
     }
+
+static inline void cons_buf_push(char c) {
+    if (c == cons_buf.interrupt) {
+        mp_sched_keyboard_interrupt();
+    } else if (!CONS_BUF_FULL) {
+        cons_buf.buf[cons_buf.tail] = c;
+        cons_buf.tail = CONS_PTR_NEXT(cons_buf.tail);
+    }
+}
+
+void mp_hal_set_interrupt_char(int c) {
+    cons_buf.interrupt = c;
+}
 
 void CAN0_ORed_0_15_MB_Handler(void) {
 
@@ -120,21 +131,21 @@ void CAN0_ORed_0_15_MB_Handler(void) {
             ((u32[1] & 0x1fffffff) == 0x1ffffffd)) {
             uint8_t dlc = (u32[0] >> 16) & 0xf;
             if (dlc > 0) {
-                CONS_BUF_PUSH((u32[2] >> 24) & 0xff);
+                cons_buf_push((u32[2] >> 24) & 0xff);
                 if (dlc > 1) {
-                    CONS_BUF_PUSH((u32[2] >> 16) & 0xff);
+                    cons_buf_push((u32[2] >> 16) & 0xff);
                     if (dlc > 2) {
-                        CONS_BUF_PUSH((u32[2] >> 8) & 0xff);
+                        cons_buf_push((u32[2] >> 8) & 0xff);
                         if (dlc > 3) {
-                            CONS_BUF_PUSH((u32[2] >> 0) & 0xff);
+                            cons_buf_push((u32[2] >> 0) & 0xff);
                             if (dlc > 4) {
-                                CONS_BUF_PUSH((u32[3] >> 24) & 0xff);
+                                cons_buf_push((u32[3] >> 24) & 0xff);
                                 if (dlc > 5) {
-                                    CONS_BUF_PUSH((u32[3] >> 16) & 0xff);
+                                    cons_buf_push((u32[3] >> 16) & 0xff);
                                     if (dlc > 6) {
-                                        CONS_BUF_PUSH((u32[3] >> 8) & 0xff);
+                                        cons_buf_push((u32[3] >> 8) & 0xff);
                                         if (dlc > 7) {
-                                            CONS_BUF_PUSH((u32[3] >> 0) & 0xff);
+                                            cons_buf_push((u32[3] >> 0) & 0xff);
                                         }
                                     }
                                 }
@@ -158,3 +169,10 @@ int mp_hal_stdin_rx_chr(void) {
     return c;
 }
 
+uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
+    uintptr_t ret = 0;
+    if (!CONS_BUF_EMPTY) {
+        ret |= MP_STREAM_POLL_RD;
+    }
+    return ret;
+}

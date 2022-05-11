@@ -117,7 +117,7 @@ typedef enum {
 #define __MPU_PRESENT           0
 #define __FPU_PRESENT           1
 
-#include <lib/cmsis/inc/core_cm4.h>
+#include <core_cm4.h>
                                                                         // --------------------
                                                                         // CSE_PRAM
 typedef struct                                                          // --------------------

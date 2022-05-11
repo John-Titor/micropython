@@ -28,8 +28,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "py/mpconfig.h"
+#include "py/runtime.h"
 #include "py/mphal.h"
+#include "py/stream.h"
 
 #include "cc16.h"
 
@@ -65,3 +66,19 @@ static const struct
     .header_key = 0x12345678,
     .app_header_version = 1,
 };
+
+void mp_hal_delay_ms(mp_uint_t ms) {
+    ms += 1;
+    uint32_t t0 = systick_ms;
+    while (systick_ms - t0 < ms) {
+        MICROPY_EVENT_POLL_HOOK
+    }
+}
+
+void mp_hal_delay_us(mp_uint_t us) {
+    uint32_t ms = us / 1000 + 1;
+    uint32_t t0 = systick_ms;
+    while (systick_ms - t0 < ms) {
+        __WFI();
+    }
+}

@@ -5,6 +5,9 @@
 #include "py/mphal.h"
 #include "cc16.h"
 
+extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss;
+volatile uint32_t systick_ms;
+
 static void
 Unhandled_Exception(void)
 {
@@ -12,7 +15,7 @@ Unhandled_Exception(void)
     for (;;) {}
 }
 
-void Reset_Handler(void) __attribute__((naked));
+void Reset_Handler(void);
 void NonMaskableInt_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void HardFault_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void MemoryManagement_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
@@ -21,9 +24,7 @@ void UsageFault_Handler(void) __attribute__((weak, alias("Unhandled_Exception"))
 void SVCall_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void DebugMonitor_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void PendSV_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
-void SysTick_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
-
-extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss;
+void SysTick_Handler(void);
 
 static const
 __attribute__((used, section(".exception_vectors")))
@@ -82,6 +83,10 @@ void __attribute__((naked)) Reset_Handler(void) {
     // This function must not return.
     for (;;) {
     }
+}
+
+void SysTick_Handler(void) {
+    systick_ms += 1;
 }
 
 static void

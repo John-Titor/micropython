@@ -26,23 +26,23 @@
 
 #include <stdint.h>
 
-// Options to control how MicroPython is built
-#define MICROPY_ENABLE_GC                       (1)
-#define MICROPY_HELPER_REPL                     (1)
-#define MICROPY_ERROR_REPORTING                 (MICROPY_ERROR_REPORTING_DETAILED)
-//#define MICROPY_FLOAT_IMPL                      (MICROPY_FLOAT_IMPL_FLOAT)
+#include "s32k144.h"
 
-// Enable u-modules to be imported with their standard name, like sys.
-#define MICROPY_MODULE_WEAK_LINKS               (1)
+// Options to control how MicroPython is built
+#define MICROPY_ENABLE_GC                   (1)
+#define MICROPY_HELPER_REPL                 (1)
+#define MICROPY_ERROR_REPORTING             (MICROPY_ERROR_REPORTING_DETAILED)
+//#define MICROPY_FLOAT_IMPL                 (MICROPY_FLOAT_IMPL_FLOAT)
+#define MICROPY_USE_INTERNAL_ERRNO          (1)
+#define MICROPY_USE_INTERNAL_PRINTF         (1)
+#define MICROPY_KBD_EXCEPTION               (1)
 
 // Fine control over Python builtins, classes, modules, etc.
-#define MICROPY_PY_ASYNC_AWAIT                  (0)
-#define MICROPY_PY_BUILTINS_SET                 (0)
-#define MICROPY_PY_ATTRTUPLE                    (0)
-#define MICROPY_PY_COLLECTIONS                  (0)
-#define MICROPY_PY_MATH                         (0)
-#define MICROPY_PY_IO                           (0)
-#define MICROPY_PY_STRUCT                       (0)
+
+// Extended modules
+#define MICROPY_PY_UTIME_MP_HAL             (1)
+#define MICROPY_PY_MACHINE                  (1)
+#define MICROPY_PY_FSTRINGS                 (1)
 
 // Type definitions for the specific machine
 
@@ -57,5 +57,14 @@ typedef long mp_off_t;
 #define MICROPY_HW_MCU_NAME                     "S32K144"
 
 #define MP_STATE_PORT                           MP_STATE_VM
+
+// Miscellaneous settings
+
+#define MICROPY_EVENT_POLL_HOOK \
+    do { \
+        extern void mp_handle_pending(bool); \
+        mp_handle_pending(true); \
+        __WFI(); \
+    } while (0);
 
 #define MICROPY_PORT_ROOT_POINTERS              const char *readline_hist[8];

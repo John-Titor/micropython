@@ -21,6 +21,7 @@ MEMORY
     sram                 : ORIGIN = 0x1fff8000, LENGTH = 0x0000f000
 }
 
+_flexram = ORIGIN(flexram);
 _estack = ORIGIN(sram) + LENGTH(sram);
 
 SECTIONS

@@ -1,18 +1,26 @@
 # Include the core environment definitions; this will set $(TOP).
 include ../../py/mkenv.mk
 
+# Qstr definitions (must come before including py.mk)
+QSTR_DEFS = qstrdefsport.h
+
 # Include py core make definitions.
 include $(TOP)/py/py.mk
 
 # Define toolchain and other tools.
 CROSS_COMPILE ?= arm-none-eabi-
 
+INC += -I.
+INC += -I$(TOP)
+INC += -I$(BUILD)
+INC += -I$(TOP)/lib/cmsis/inc
+
 # Set CFLAGS.
 # XXX S32K could build hardfloat
-CFLAGS += -I. -I$(TOP) -I$(BUILD)
+CFLAGS += $(INC)
 CFLAGS += -Wall -Werror -std=c99 -nostdlib
-CFLAGS += -mthumb -mtune=cortex-m4 -mcpu=cortex-m4 -msoft-float
-CSUPEROPT = -Os # save some code space for performance-critical code
+CFLAGS += -mthumb -mtune=cortex-m4 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+CSUPEROPT = -Os
 
 # Select debugging or optimisation build.
 ifeq ($(DEBUG), 1)
@@ -26,22 +34,35 @@ endif
 LDFLAGS += -T CC16.ld --gc-sections --nostdlib -Map=$(@:.elf=.map) --cref
 
 # Define the required source files.
-SRC_C += lib.c \
-	 main.c \
-	 mphalport.c \
-	 s32k_can.c \
-	 s32k_isr.c \
-	 shared/libc/printf.c \
-	 shared/libc/string0.c \
-	 shared/readline/readline.c \
-	 shared/runtime/gchelper_native.c \
-	 shared/runtime/pyexec.c \
-	 shared/runtime/stdout_helpers.c
+SRC_C += \
+	lib.c \
+	main.c \
+	modmachine.c \
+	mphalport.c \
+	s32k_can.c \
+	s32k_isr.c \
+	shared/libc/printf.c \
+	shared/libc/string0.c \
+	shared/readline/readline.c \
+	shared/runtime/gchelper_native.c \
+	shared/runtime/pyexec.c \
+	shared/runtime/stdout_helpers.c \
+	shared/runtime/sys_stdio_mphal.c \
+	shared/timeutils/timeutils.c \
+
+SRC_C += $(SRC_MOD) 
 
 SRC_S += shared/runtime/gchelper_m3.o
 
+SRC_QSTR += \
+	 modmachine.c \
+	 shared/runtime/sys_stdio_mphal.c \
+
+SRC_QSTR += \
+	 $(SRC_MOD)
+
 # Define the required object files.
-OBJ += $(PY_CORE_O)
+OBJ += $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o) $(SRC_S:.s=.o))
 
 # Define the top-level target, the main firmware.
