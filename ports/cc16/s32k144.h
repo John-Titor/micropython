@@ -111,6 +111,13 @@ typedef enum {
     FTM3_Ovf_Reload_IRQn           = 122,
 } IRQn_Type;
 
+#define __CM4_REV               0x0001U
+#define __NVIC_PRIO_BITS        4
+#define __Vendor_SysTickConfig  0
+#define __MPU_PRESENT           0
+#define __FPU_PRESENT           1
+
+#include <lib/cmsis/inc/core_cm4.h>
                                                                         // --------------------
                                                                         // CSE_PRAM
 typedef struct                                                          // --------------------

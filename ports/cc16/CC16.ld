@@ -38,7 +38,8 @@ SECTIONS
     . = ORIGIN(vector_table);
     .isr_vector :
     {
-        KEEP(*(.isr_vector))
+        KEEP(*(.exception_vectors))
+        KEEP(*(.interrupt_vectors))
     } > vector_table
     __vector_table = ORIGIN(vector_table);
 

@@ -29,6 +29,8 @@ LDFLAGS += -T CC16.ld --gc-sections --nostdlib -Map=$(@:.elf=.map) --cref
 SRC_C += lib.c \
 	 main.c \
 	 mphalport.c \
+	 s32k_can.c \
+	 s32k_isr.c \
 	 shared/libc/printf.c \
 	 shared/libc/string0.c \
 	 shared/readline/readline.c \
