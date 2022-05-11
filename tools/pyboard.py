@@ -182,6 +182,7 @@ class ProcessToSerial:
 
         self.poll = select.poll()
         self.poll.register(self.subp.stdout.fileno())
+        self.fd = self.subp.stdout
 
     def close(self):
         import signal

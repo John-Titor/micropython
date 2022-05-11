@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CAN proxy, bridges CAN console to stdin/out for use with mpremote
+CAN proxy, bridges CAN console to stdin/out for use with mpremote:
 
-    canproxy --interface <interface-name> --channel <channel> --bitrate <bitrate-kbps>
+    mpremote exec:"canproxy.py --interface <interface-name> --channel <channel> --bitrate <bitrate-kbps>"
 """
 
 import can
@@ -34,7 +34,6 @@ def proxy(interface, channel, bitrate):
 
     except KeyboardInterrupt:
         notifier.stop()
-#    termios.tcsetattr(sys.stdin.fileno(), termios.TCSANOW, orig_attr)
 
 
 if __name__ == "__main__":
