@@ -32,6 +32,7 @@
 #include "shared/runtime/gchelper.h"
 #include "shared/runtime/pyexec.h"
 
+#include "cc16_pin.h"
 #include "s32k144.h"
 
 extern uint32_t _heap_start;
@@ -49,12 +50,15 @@ void main(void) {
         gc_init(&_heap_start, &_heap_end);
         mp_init();
 
+        // (re)init pins
+        cc16_pin_init();
+
         // Execute _boot.py to set up the filesystem.
-        //pyexec_frozen_module("_boot.py");
+        // pyexec_frozen_module("_boot.py");
 
         // Execute user scripts.
-        //pyexec_file_if_exists("boot.py");
-        //pyexec_file_if_exists("main.py");
+        // pyexec_file_if_exists("boot.py");
+        // pyexec_file_if_exists("main.py");
 
         for (;;) {
             if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {

@@ -7,21 +7,21 @@
 #include "modmachine.h"
 
 typedef struct {
-    uint16_t  id;
-    uint32_t  serial_number;
-    uint32_t  device_number;
-    uint8_t   part_number[20u];
-    uint8_t   drawing_number[20u];
-    uint8_t   name[20u];
-    uint8_t   order_number[20u];
-    uint8_t   test_date[12u];
-    uint16_t  mcu_type;
-    uint8_t   hw_version[2u];
+    uint16_t id;
+    uint32_t serial_number;
+    uint32_t device_number;
+    uint8_t part_number[20u];
+    uint8_t drawing_number[20u];
+    uint8_t name[20u];
+    uint8_t order_number[20u];
+    uint8_t test_date[12u];
+    uint16_t mcu_type;
+    uint8_t hw_version[2u];
 } __attribute__((packed)) MRS_factory_data_t;
 
-//static const MRS_factory_data_t  *factory_data = (const MRS_factory_data_t *)0x14000002;
+// static const MRS_factory_data_t  *factory_data = (const MRS_factory_data_t *)0x14000002;
 
-extern const mp_obj_type_t machine_pin_type;
+// extern const mp_obj_type_t machine_pin_type;
 
 STATIC mp_obj_t machine_reset(void) {
     NVIC_SystemReset();
@@ -49,7 +49,7 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_mem16),               MP_ROM_PTR(&machine_mem16_obj) },
     { MP_ROM_QSTR(MP_QSTR_mem32),               MP_ROM_PTR(&machine_mem32_obj) },
     { MP_ROM_QSTR(MP_QSTR_unique_id),           MP_ROM_PTR(&machine_unique_id_obj) },
-    { MP_ROM_QSTR(MP_QSTR_Pin),                 MP_ROM_PTR(&machine_pin_type) },
+    { MP_ROM_QSTR(MP_QSTR_HSD),                 MP_ROM_PTR(&cc16_hsd_type) },
 };
 STATIC MP_DEFINE_CONST_DICT(machine_module_globals, machine_module_globals_table);
 

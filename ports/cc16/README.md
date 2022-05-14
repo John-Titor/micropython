@@ -7,9 +7,7 @@ the need to accommodate the CC16's bootloader, and the lack of external
 serial ports.
 
 To build, simply run `make` in this directory.  Deploying is an exercise for
-the reader. Console output is delivered on CAN1, ID 0x1ffffffe, with newlines
-included.
+the reader, but the MRS flasher can be used, or the open-source flasher at
+https://github.com/John-Titor/MRS_tools. 
 
-There are some simple demonstration code strings (see `main.c`) which are
-compiled and executed when the firmware starts.  They produce output on the
-system's stdout.
+Console output is delivered on CAN1, ID 0x1ffffffe, with newlines included.

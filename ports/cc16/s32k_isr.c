@@ -8,16 +8,91 @@
 extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss;
 volatile uint32_t systick_ms;
 
+typedef struct {
+    uint32_t r0, r1, r2, r3, r12, lr, pc, xpsr;
+} ExceptionRegisters_t;
+
 static void
-Unhandled_Exception(void)
-{
-    mp_hal_stdout_tx_strn("\nUE!", 4);
+Unhandled_Exception(void) {
+    mp_hal_stdout_tx_str("\nUnhandled Exception\n");
     for (;;) {}
+}
+
+static char *fmt_hex(uint32_t val, char *buf) {
+    const char *hexDig = "0123456789abcdef";
+
+    buf[0] = hexDig[(val >> 28) & 0x0f];
+    buf[1] = hexDig[(val >> 24) & 0x0f];
+    buf[2] = hexDig[(val >> 20) & 0x0f];
+    buf[3] = hexDig[(val >> 16) & 0x0f];
+    buf[4] = hexDig[(val >> 12) & 0x0f];
+    buf[5] = hexDig[(val >> 8) & 0x0f];
+    buf[6] = hexDig[(val >> 4) & 0x0f];
+    buf[7] = hexDig[(val >> 0) & 0x0f];
+    buf[8] = '\0';
+
+    return buf;
+}
+
+static void print_reg(const char *label, uint32_t val) {
+    char hexStr[9];
+
+    mp_hal_stdout_tx_str(label);
+    mp_hal_stdout_tx_str(fmt_hex(val, hexStr));
+    mp_hal_stdout_tx_str("\r\n");
+}
+
+__attribute__((used))
+static void HardFault_C_Handler(ExceptionRegisters_t *regs) {
+
+    mp_hal_stdout_tx_str("\nHardFault\n");
+
+    print_reg("R0    ", regs->r0);
+    print_reg("R1    ", regs->r1);
+    print_reg("R2    ", regs->r2);
+    print_reg("R3    ", regs->r3);
+    print_reg("R12   ", regs->r12);
+    print_reg("SP    ", (uint32_t)regs);
+    print_reg("LR    ", regs->lr);
+    print_reg("PC    ", regs->pc);
+    print_reg("XPSR  ", regs->xpsr);
+
+    uint32_t cfsr = SCB->CFSR;
+
+    print_reg("HFSR  ", SCB->HFSR);
+    print_reg("CFSR  ", cfsr);
+    if (cfsr & 0x80) {
+        print_reg("MMFAR ", SCB->MMFAR);
+    }
+    if (cfsr & 0x8000) {
+        print_reg("BFAR  ", SCB->BFAR);
+    }
+
+    for (;;) {}
+}
+
+__attribute__((naked))
+void HardFault_Handler(void) {
+
+    // From the ARMv7M Architecture Reference Manual, section B.1.5.6
+    // on entry to the Exception, the LR register contains, amongst other
+    // things, the value of CONTROL.SPSEL. This can be found in bit 3.
+    //
+    // If CONTROL.SPSEL is 0, then the exception was stacked up using the
+    // main stack pointer (aka MSP). If CONTROL.SPSEL is 1, then the exception
+    // was stacked up using the process stack pointer (aka PSP).
+
+    __asm volatile (
+        " tst lr, #4    \n"     // Test Bit 3 to see which stack pointer we should use.
+        " ite eq        \n"     // Tell the assembler that the nest 2 instructions are if-then-else
+        " mrseq r0, msp \n"     // Make R0 point to main stack pointer
+        " mrsne r0, psp \n"     // Make R0 point to process stack pointer
+        " b HardFault_C_Handler \n" // Off to C land
+        );
 }
 
 void Reset_Handler(void);
 void NonMaskableInt_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
-void HardFault_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void MemoryManagement_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void BusFault_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
 void UsageFault_Handler(void) __attribute__((weak, alias("Unhandled_Exception")));
@@ -41,18 +116,18 @@ uint32_t _exception_vectors[] =
     (uint32_t)Unhandled_Exception,        // -8
     (uint32_t)Unhandled_Exception,        // -7
     (uint32_t)Unhandled_Exception,        // -6
-    (uint32_t)SVCall_Handler,             // -5 
-    (uint32_t)DebugMonitor_Handler,       // -4 
+    (uint32_t)SVCall_Handler,             // -5
+    (uint32_t)DebugMonitor_Handler,       // -4
     (uint32_t)Unhandled_Exception,        // -3
-    (uint32_t)PendSV_Handler,             // -2 
-    (uint32_t)SysTick_Handler,            // -1 
+    (uint32_t)PendSV_Handler,             // -2
+    (uint32_t)SysTick_Handler,            // -1
 };
 
 // Entrypoint from the bootloader.
 void __attribute__((naked)) Reset_Handler(void) {
 
     // fix the stack pointer
-    volatile register void *sp  __asm__("%sp");
+    volatile register void *sp  __asm__ ("%sp");
     sp = &_estack;
     (void)sp;
 
@@ -90,8 +165,7 @@ void SysTick_Handler(void) {
 }
 
 static void
-Unhandled_Interrupt(void)
-{
+Unhandled_Interrupt(void) {
     mp_hal_stdout_tx_strn("\nUI!", 4);
     for (;;) {}
 }
@@ -313,4 +387,3 @@ uint32_t _interrupt_vectors[] =
     (uint32_t)FTM3_Fault_Handler,         // 121 FTM3_Fault
     (uint32_t)FTM3_Ovf_Reload_Handler,    // 122 FTM3_Ovf_Reload
 };
-

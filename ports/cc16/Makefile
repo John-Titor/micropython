@@ -4,6 +4,8 @@ include ../../py/mkenv.mk
 # Qstr definitions (must come before including py.mk)
 QSTR_DEFS = qstrdefsport.h
 
+FROZEN_MANIFEST = manifest.py
+
 # Include py core make definitions.
 include $(TOP)/py/py.mk
 
@@ -35,6 +37,9 @@ LDFLAGS += -T CC16.ld --gc-sections --nostdlib -Map=$(@:.elf=.map) --cref
 
 # Define the required source files.
 SRC_C += \
+	cc16_hsd.c \
+	cc16_pin.c \
+	help.c \
 	lib.c \
 	main.c \
 	modmachine.c \
@@ -55,15 +60,22 @@ SRC_C += $(SRC_MOD)
 SRC_S += shared/runtime/gchelper_m3.o
 
 SRC_QSTR += \
-	 modmachine.c \
-	 shared/runtime/sys_stdio_mphal.c \
+	cc16_hsd.c \
+	modmachine.c \
+	shared/runtime/sys_stdio_mphal.c \
 
 SRC_QSTR += \
-	 $(SRC_MOD)
+	$(SRC_MOD)
 
 # Define the required object files.
 OBJ += $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o) $(SRC_S:.s=.o))
+
+ifneq ($(FROZEN_MANIFEST),)
+CFLAGS += -DMICROPY_MODULE_FROZEN_MPY
+CFLAGS += -DMICROPY_MODULE_FROZEN_STR
+CFLAGS += -DMICROPY_QSTR_EXTRA_POOL=mp_qstr_frozen_const_pool
+endif
 
 # Define the top-level target, the main firmware.
 all: $(BUILD)/firmware.s19
