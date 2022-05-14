@@ -38,6 +38,7 @@ LDFLAGS += -T CC16.ld --gc-sections --nostdlib -Map=$(@:.elf=.map) --cref
 # Define the required source files.
 SRC_C += \
 	cc16_hsd.c \
+	cc16_input.c \
 	cc16_pin.c \
 	help.c \
 	lib.c \
@@ -61,6 +62,7 @@ SRC_S += shared/runtime/gchelper_m3.o
 
 SRC_QSTR += \
 	cc16_hsd.c \
+	cc16_input.c \
 	modmachine.c \
 	shared/runtime/sys_stdio_mphal.c \
 

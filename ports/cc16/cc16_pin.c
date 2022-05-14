@@ -106,7 +106,7 @@ cc16_pin_init()
 void
 cc16_pin_configure(Pin_t pin)
 {
-    assert(pin.port <= Pin_PortX);
+    assert(pin.port <= Pin_PortNone);
 
     if (pin.port <= Pin_PortE) {
         assert(pin.index < 18);
@@ -149,6 +149,8 @@ cc16_pin_configure(Pin_t pin)
         assert(pin.index < 13);
 
         cc16_pin_set(pin, pin.initial);
+    } else {
+        // Pin_PortNone ignored
     }
 }
 
@@ -178,6 +180,8 @@ cc16_pin_set(Pin_t pin, bool v)
             _portX_state &= ~(uint16_t)1 << pin.index;
         }
         _portX_update();
+    } else {
+        // Pin_PortNone ignored
     }
 }
 
@@ -194,6 +198,8 @@ cc16_pin_get(Pin_t pin)
         uint32_t mask = (uint32_t)1 << pin.index;
         volatile PT_regs_t *io = _pin_io(pin);
         return io->PDIR & mask;
+    } else {
+        // Pin_PortX, Pin_PortNone ignored
     }
     return false;
 }
@@ -205,6 +211,8 @@ cc16_pin_toggle(Pin_t pin)
         uint32_t mask = (uint32_t)1 << pin.index;
         volatile PT_regs_t *io = _pin_io(pin);
         io->PTOR = mask;
+    } else {
+        // Pin_PortX, Pin_PortNone ignored
     }
 }
 

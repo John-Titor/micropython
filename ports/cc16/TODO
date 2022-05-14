@@ -1,6 +1,34 @@
  ☐ Set CAN0 startup speed from the EEPROM
  ☐ CAN
  ☐ Pins
+   ☐ OUTx
+     ✔ digital out @done (22-05-14 00:18)
+     ☐ PWM
+     ☐ voltage sensing
+     ☐ current sensing
+     ☐ output status sensing
+   ☐ INx
+     ✔ digital input @done (22-05-14 00:20)
+     ☐ analog input
+       ☐ range selection
+       ☐ averaging
+     ✔ pull up/down @done (22-05-14 00:20)
+     ☐ frequency
+     ☐ duty cycle
+   ☐ misc analog pins
+     DI_AI_ID, DI_AI_KL30_x
+     ☐ digital input
+       XXX not available while mux'ed for analog
+     ☐ analog input
+       ☐ averaging
+   ☐ misc digital pins
+     DI_KL15, DI_INTERFACE2_x
+     ☐ digital input
+   ☐ Vref
+     ☐ selection
+     ☐ sensing
+       DI_PGD, DI_AI_VREF
+
  ☐ Flash filesystem
  ☐ get mpremote working
  ✔ frozen modules @done (22-05-13 21:27)

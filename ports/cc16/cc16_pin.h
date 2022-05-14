@@ -13,7 +13,8 @@ enum {
     Pin_PortC,
     Pin_PortD,
     Pin_PortE,
-    Pin_PortX
+    Pin_PortX,
+    Pin_PortNone,
 };
 enum {
     Pin_Analog,
@@ -142,15 +143,15 @@ extern void     cc16_pin_toggle(Pin_t pin);
 //
 // External input pins.
 //
-#define DI_AI_A_IN0     (Pin_t){ .port = Pin_PortB, .index = 1,  .mux = Pin_Analog }
-#define DI_AI_A_IN1     (Pin_t){ .port = Pin_PortB, .index = 0,  .mux = Pin_Analog }
-#define DI_AI_A_IN2     (Pin_t){ .port = Pin_PortA, .index = 7,  .mux = Pin_Analog }
-#define DI_AI_A_IN3     (Pin_t){ .port = Pin_PortA, .index = 6,  .mux = Pin_Analog }
-#define DI_AI_A_IN4     (Pin_t){ .port = Pin_PortB, .index = 16, .mux = Pin_Analog }
-#define DI_AI_A_IN5     (Pin_t){ .port = Pin_PortB, .index = 15, .mux = Pin_Analog }
+#define DI_AI_A_IN0     (Pin_t){ .port = Pin_PortB, .index = 1,  .mux = Pin_Analog, .ftm = 3 }
+#define DI_AI_A_IN1     (Pin_t){ .port = Pin_PortB, .index = 0,  .mux = Pin_Analog, .ftm = 3 }
+#define DI_AI_A_IN2     (Pin_t){ .port = Pin_PortA, .index = 7,  .mux = Pin_Analog, .ftm = 3 }
+#define DI_AI_A_IN3     (Pin_t){ .port = Pin_PortA, .index = 6,  .mux = Pin_Analog, .ftm = 3 }
+#define DI_AI_A_IN4     (Pin_t){ .port = Pin_PortB, .index = 16, .mux = Pin_Analog, .ftm = 3 }
+#define DI_AI_A_IN5     (Pin_t){ .port = Pin_PortB, .index = 15, .mux = Pin_Analog, .ftm = 3 }
 #define DI_AI_ID        (Pin_t){ .port = Pin_PortC, .index = 7,  .mux = Pin_Analog }
-#define DI_INTERFACE2_A (Pin_t){ .port = Pin_PortD, .index = 7, .mux = Pin_GPIO, .direction = Pin_IN }
-#define DI_INTERFACE2_B (Pin_t){ .port = Pin_PortD, .index = 8, .mux = Pin_GPIO, .direction = Pin_IN }
+#define DI_INTERFACE2_A (Pin_t){ .port = Pin_PortD, .index = 7,  .mux = Pin_GPIO, .direction = Pin_IN }
+#define DI_INTERFACE2_B (Pin_t){ .port = Pin_PortD, .index = 8,  .mux = Pin_GPIO, .direction = Pin_IN }
 
 //
 // High-side driver output pins.
@@ -165,5 +166,10 @@ extern void     cc16_pin_toggle(Pin_t pin);
 #define DO_HSD2_OUT5    (Pin_t){ .port = Pin_PortD, .index = 12, .mux = Pin_GPIO, .direction = Pin_OUT, .ftm = 2, .channel = 2 }
 #define DO_HSD2_OUT6    (Pin_t){ .port = Pin_PortD, .index = 9,  .mux = Pin_GPIO, .direction = Pin_OUT, .ftm = 1, .channel = 5 }
 #define DO_HSD2_OUT7    (Pin_t){ .port = Pin_PortD, .index = 16, .mux = Pin_GPIO, .direction = Pin_OUT, .ftm = 0, .channel = 1 }
+
+//
+// Not-a-pin pin, ignored by cc16_pin_* functions.
+//
+#define PIN_NONE        (Pin_t){ .port = Pin_PortNone, .mux = Pin_Function7 }
 
 #endif // MICROPY_INCLUDED_CC16_PIN_H

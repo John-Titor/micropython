@@ -9,6 +9,7 @@ extern void cc16_init(void);
 extern void s32k_can_early_init(void);
 
 extern const mp_obj_type_t cc16_hsd_type;
+extern const mp_obj_type_t cc16_input_type;
 
 typedef struct {
 	uint8_t		adc:1;

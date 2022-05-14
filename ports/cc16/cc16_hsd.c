@@ -30,7 +30,7 @@ static const cc16_hsd_obj_t cc16_hsd_obj[] = {
 #define HSD_ID(obj) ((obj) - &cc16_hsd_obj[0])
 
 static void cc16_hsd_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
-    cc16_hsd_obj_t *self = self_in;
+    cc16_hsd_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_printf(print, "OUT%u", HSD_ID(self));
 }
 
@@ -38,28 +38,28 @@ static mp_obj_t cc16_hsd_make_new(const mp_obj_type_t *type, size_t n_args, size
     mp_arg_check_num(n_args, n_kw, 1, 1, false);
     mp_int_t hsd_id = mp_obj_get_int(args[0]);
     if (!(0 <= hsd_id && hsd_id < NUM_HSD)) {
-        mp_raise_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("HSD%d does not exist"), hsd_id);
+        mp_raise_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("OUT%d does not exist"), hsd_id);
     }
     return (mp_obj_t)&cc16_hsd_obj[hsd_id];
 }
 
 mp_obj_t cc16_hsd_on(mp_obj_t self_in) {
-    cc16_hsd_obj_t *self = self_in;
-    cc16_pin_set(cc16_hsd_obj[HSD_ID(self)].output_pin, true);
+    cc16_hsd_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    cc16_pin_set(self->output_pin, true);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_hsd_on_obj, cc16_hsd_on);
 
 mp_obj_t cc16_hsd_off(mp_obj_t self_in) {
-    cc16_hsd_obj_t *self = self_in;
-    cc16_pin_set(cc16_hsd_obj[HSD_ID(self)].output_pin, false);
+    cc16_hsd_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    cc16_pin_set(self->output_pin, false);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_hsd_off_obj, cc16_hsd_off);
 
 mp_obj_t cc16_hsd_toggle(mp_obj_t self_in) {
-    cc16_hsd_obj_t *self = self_in;
-    cc16_pin_toggle(cc16_hsd_obj[HSD_ID(self)].output_pin);
+    cc16_hsd_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    cc16_pin_toggle(self->output_pin);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_hsd_toggle_obj, cc16_hsd_toggle);
