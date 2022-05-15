@@ -22,8 +22,8 @@ extern const mp_obj_type_t cc16_input_type;
 extern const mp_obj_type_t cc16_vref_type;
 
 typedef struct {
-	uint8_t		adc:1;
-	uint8_t		channel:4;
+    uint8_t adc : 1;
+    uint8_t channel : 4;
 } ADC_channel_t;
 
 #endif // MICROPY_INCLUDED_CC16_H

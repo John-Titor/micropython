@@ -33,7 +33,7 @@
 #define MICROPY_HELPER_REPL                 (1)
 #define MICROPY_ERROR_REPORTING             (MICROPY_ERROR_REPORTING_DETAILED)
 #define MICROPY_LONGINT_IMPL                (MICROPY_LONGINT_IMPL_MPZ)
-//#define MICROPY_FLOAT_IMPL                 (MICROPY_FLOAT_IMPL_FLOAT)
+// #define MICROPY_FLOAT_IMPL                 (MICROPY_FLOAT_IMPL_FLOAT)
 #define MICROPY_USE_INTERNAL_ERRNO          (1)
 #define MICROPY_USE_INTERNAL_PRINTF         (1)
 #define MICROPY_KBD_EXCEPTION               (1)
