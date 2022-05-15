@@ -34,39 +34,6 @@
 
 #include "cc16.h"
 
-// Set up the S32K144 MCU
-void cc16_init(void) {
-
-    // clocking is handled by the ROM, nothing to do
-
-    // turn off the watchdog
-    WDOG->CNT = 0xD928C520;         // unlock
-    (void)WDOG->CNT;                // force ordering
-    WDOG->CS &= ~WDOG_CS_EN;        // disable
-
-
-    // configure OUT1 on PortD:14
-    PCC->PCC_PORTD |= PCC_PCC_PORTD_CGC;        // clock on
-    PORTD->PCR14 = PORT_PCR14_MUX(1);           // GPIO
-    PTD->PDDR = (1U << 14);                     // direction = out
-    PTD->PSOR = (1U << 14);                     // set
-
-    s32k_can_early_init();
-}
-
-static const struct
-{
-    uint32_t header_key;
-    uint32_t header_crc;
-    uint32_t app_header_version;
-    uint32_t application_crc;
-    uint32_t application_length;
-    uint8_t sw_version[32];
-} flash_header __attribute__((used, section(".application_header"))) = {
-    .header_key = 0x12345678,
-    .app_header_version = 1,
-};
-
 void mp_hal_delay_ms(mp_uint_t ms) {
     ms += 1;
     uint32_t t0 = systick_ms;

@@ -32,7 +32,12 @@ SECTIONS
     . = ORIGIN(application_header);
     .application_header :
     {
-        KEEP(*(.application_header))
+        LONG(0x12345678);       /* header_key */
+        LONG(0);                /* header_crc */
+        LONG(1);                /* app_header_version */
+        LONG(0);                /* application_crc */
+        LONG(0);                /* application_length */
+        FILL(0);
         . = ORIGIN(application_header) + LENGTH(application_header);
     } > application_header
 

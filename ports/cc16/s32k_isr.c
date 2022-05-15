@@ -3,10 +3,12 @@
 #include <string.h>
 
 #include "py/mphal.h"
-#include "cc16.h"
+#include "s32k144.h"
 
 extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss;
 volatile uint32_t systick_ms;
+
+extern void main(void);
 
 typedef struct {
     uint32_t r0, r1, r2, r3, r12, lr, pc, xpsr;
@@ -140,6 +142,13 @@ void __attribute__((naked)) Reset_Handler(void) {
     // Enable the VFP
     S32_SCB->CPACR = S32_SCB_CPACR_CP10(3) | S32_SCB_CPACR_CP10(3);
 
+    // clocking is handled by the ROM, nothing to do here
+
+    // turn off the watchdog
+    WDOG->CNT = 0xD928C520;         // unlock
+    (void)WDOG->CNT;                // force ordering
+    WDOG->CS &= ~WDOG_CS_EN;        // disable
+
     // Copy .data section from flash to RAM.
     memcpy(&_sdata, &_sidata, (char *)&_edata - (char *)&_sdata);
 
@@ -148,9 +157,6 @@ void __attribute__((naked)) Reset_Handler(void) {
 
     // enable interrupts
     __enable_irq();
-
-    // Initialise the cpu and peripherals.
-    cc16_init();
 
     // call the main application
     main();
