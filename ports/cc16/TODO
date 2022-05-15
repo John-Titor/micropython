@@ -13,26 +13,28 @@
    ☐ INx
      ✔ digital input @done (22-05-14 00:20)
        ✔ pull control @done (22-05-14 19:41)
-     ☐ analog input
+     ✔ analog input @done (22-05-15 12:50)
        ✔ range selection @done (22-05-14 19:42)
-       ☐ averaging
      ✔ pull up/down @done (22-05-14 00:20)
      ☐ frequency
      ☐ duty cycle
    ☐ misc analog pins
      DI_AI_ID, DI_AI_KL30_x
      ✔ digital input @done (22-05-14 20:36)
-     ☐ analog input
-       ☐ averaging
+     ✔ analog input @done (22-05-15 12:49)
    ☐ misc digital pins
      DI_KL15, DI_INTERFACE2_x
      ✔ digital input @done (22-05-14 19:44)
      ✔ pull control @done (22-05-14 19:44)
    ☐ Vref
-     ☐ selection
-     ☐ sensing
+     ✔ selection @done (22-05-15 12:49)
+     ✔ sensing @done (22-05-15 12:49)
        DI_PGD, DI_AI_VREF
+     ☐ work out what's wrong with 8V5
 
  ☐ Flash filesystem
  ☐ get mpremote working
  ✔ frozen modules @done (22-05-13 21:27)
+
+ Future:
+   ☐ interrupt-driven / background ADC sampling / averaging

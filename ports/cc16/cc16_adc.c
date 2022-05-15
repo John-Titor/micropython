@@ -32,7 +32,7 @@ uint32_t cc16_adc_sample(Pin_t pin) {
         return 0;
     }
 
-    volatile ADC_regs_t  *regs = pin.adc ? ADC1 : ADC0;
+    volatile ADC_regs_t *regs = pin.adc ? ADC1 : ADC0;
     regs->SC1A = ADC_SC1A_ADCH(pin.channel);
     while (!(regs->SC1A & ADC_SC1A_COCO)) {
     }

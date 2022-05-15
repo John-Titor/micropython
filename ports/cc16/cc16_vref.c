@@ -4,7 +4,7 @@
 #include "cc16.h"
 
 typedef struct _cc16_vref_obj_t {
-    mp_obj_base_t   base;           // object type
+    mp_obj_base_t base;             // object type
 } cc16_vref_obj_t;
 
 static const cc16_vref_obj_t cc16_vref_obj = {{&cc16_vref_type}};
@@ -40,32 +40,32 @@ static mp_obj_t cc16_vref_make_new(const mp_obj_type_t *type, size_t n_args, siz
 static mp_obj_t cc16_vref_set_(mp_obj_t self_in, mp_obj_t voltage_in) {
     (void)self_in;
     switch (mp_obj_get_int(voltage_in)) {
-    case VREF_NONE:
-        cc16_pin_set(DO_VREF_EN, false);
-        break;
-    case VREF_5V:
-        cc16_pin_set(DO_VREF_EN, true);
-        cc16_pin_set(DCDC_8V5, false);
-        cc16_pin_set(DCDC_10V, false);
-        break;
-    case VREF_7V4:
-        cc16_pin_set(DO_VREF_EN, true);
-        cc16_pin_set(DCDC_8V5, true);
-        cc16_pin_set(DCDC_10V, true);
-        break;
-    case VREF_8V5:
-        mp_raise_NotImplementedError(MP_ERROR_TEXT("Vref 8.5V is not working"));
+        case VREF_NONE:
+            cc16_pin_set(DO_VREF_EN, false);
+            break;
+        case VREF_5V:
+            cc16_pin_set(DO_VREF_EN, true);
+            cc16_pin_set(DCDC_8V5, false);
+            cc16_pin_set(DCDC_10V, false);
+            break;
+        case VREF_7V4:
+            cc16_pin_set(DO_VREF_EN, true);
+            cc16_pin_set(DCDC_8V5, true);
+            cc16_pin_set(DCDC_10V, true);
+            break;
+        case VREF_8V5:
+            mp_raise_NotImplementedError(MP_ERROR_TEXT("Vref 8.5V is not working"));
 //        cc16_pin_set(DO_VREF_EN, true);
 //        cc16_pin_set(DCDC_8V5, true);
 //        cc16_pin_set(DCDC_10V, false);
-        break;
-    case VREF_10V:
-        cc16_pin_set(DO_VREF_EN, true);
-        cc16_pin_set(DCDC_8V5, false);
-        cc16_pin_set(DCDC_10V, true);
-        break;
-    default:
-        mp_raise_ValueError(MP_ERROR_TEXT("invalid Vref value"));
+            break;
+        case VREF_10V:
+            cc16_pin_set(DO_VREF_EN, true);
+            cc16_pin_set(DCDC_8V5, false);
+            cc16_pin_set(DCDC_10V, true);
+            break;
+        default:
+            mp_raise_ValueError(MP_ERROR_TEXT("invalid Vref value"));
     }
     return mp_const_none;
 }
@@ -96,7 +96,7 @@ static const mp_rom_map_elem_t cc16_vref_locals_dict_table[] = {
 static MP_DEFINE_CONST_DICT(cc16_vref_locals_dict, cc16_vref_locals_dict_table);
 
 const mp_obj_type_t cc16_vref_type = {
-    { & mp_type_type },
+    { &mp_type_type },
     .name = MP_QSTR_Vref,
     .print = cc16_vref_print,
     .make_new = cc16_vref_make_new,

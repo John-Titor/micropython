@@ -4,13 +4,13 @@
 #include "cc16.h"
 
 typedef struct _cc16_output_obj_t {
-    mp_obj_base_t   base;
-    Pin_t           digital_pin;
-    Pin_t           pwm_pin;
-    Pin_t           voltage_pin;
-    Pin_t           current_pin;
-    Pin_t           sense_pin;
-    Pin_t           sense_mux;
+    mp_obj_base_t base;
+    Pin_t digital_pin;
+    Pin_t pwm_pin;
+    Pin_t voltage_pin;
+    Pin_t current_pin;
+    Pin_t sense_pin;
+    Pin_t sense_mux;
 } cc16_output_obj_t;
 
 static const cc16_output_obj_t cc16_output_obj[] = {
@@ -64,26 +64,26 @@ static mp_obj_t cc16_output_make_new(const mp_obj_type_t *type, size_t n_args, s
 static mp_obj_t cc16_output_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
     switch (mp_obj_get_int(mode_in)) {
-    case OUTPUT_MODE_DIGITAL:
-        cc16_pin_configure(self->digital_pin);
-        break;
-    case OUTPUT_MODE_PWM:
-        if (cc16_pin_is_none(self->pwm_pin)) {
-            mp_raise_ValueError(MP_ERROR_TEXT("pin does not support PWM"));
-        } else {
-            cc16_pin_configure(self->pwm_pin);
-            // XXX set base duty cycle
-            // XXX enable PWM output from FTM
-        }
-        break;
-    case OUTPUT_MODE_ANALOG_IN:
-        if (cc16_pin_is_none(self->voltage_pin)) {
-            mp_raise_ValueError(MP_ERROR_TEXT("pin does not support analog input"));
-        } else {
+        case OUTPUT_MODE_DIGITAL:
             cc16_pin_configure(self->digital_pin);
-            cc16_pin_set(self->digital_pin, false);
-        }
-        break;
+            break;
+        case OUTPUT_MODE_PWM:
+            if (cc16_pin_is_none(self->pwm_pin)) {
+                mp_raise_ValueError(MP_ERROR_TEXT("pin does not support PWM"));
+            } else {
+                cc16_pin_configure(self->pwm_pin);
+                // XXX set base duty cycle
+                // XXX enable PWM output from FTM
+            }
+            break;
+        case OUTPUT_MODE_ANALOG_IN:
+            if (cc16_pin_is_none(self->voltage_pin)) {
+                mp_raise_ValueError(MP_ERROR_TEXT("pin does not support analog input"));
+            } else {
+                cc16_pin_configure(self->digital_pin);
+                cc16_pin_set(self->digital_pin, false);
+            }
+            break;
     }
     return mp_const_none;
 }
@@ -142,7 +142,7 @@ static const mp_rom_map_elem_t cc16_output_locals_dict_table[] = {
 static MP_DEFINE_CONST_DICT(cc16_output_locals_dict, cc16_output_locals_dict_table);
 
 const mp_obj_type_t cc16_output_type = {
-    { & mp_type_type },
+    { &mp_type_type },
     .name = MP_QSTR_Output,
     .print = cc16_output_print,
     .make_new = cc16_output_make_new,
