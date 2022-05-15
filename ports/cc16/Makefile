@@ -38,6 +38,7 @@ LDFLAGS += -T CC16.ld --gc-sections --nostdlib -Map=$(@:.elf=.map) --cref
 # Define the required source files.
 SRC_C += \
 	cc16_adc.c \
+	cc16_ftm.c \
 	cc16_input.c \
 	cc16_output.c \
 	cc16_pin.c \

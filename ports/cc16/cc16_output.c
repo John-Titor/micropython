@@ -61,7 +61,7 @@ static mp_obj_t cc16_output_make_new(const mp_obj_type_t *type, size_t n_args, s
     return (mp_obj_t)&cc16_output_obj[output_id];
 }
 
-static mp_obj_t cc16_output_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
+static mp_obj_t cc16_output_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
     switch (mp_obj_get_int(mode_in)) {
         case OUTPUT_MODE_DIGITAL:
@@ -87,7 +87,7 @@ static mp_obj_t cc16_output_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     }
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(cc16_output_set_mode_obj, cc16_output_set_mode);
+static MP_DEFINE_CONST_FUN_OBJ_2(cc16_output_mode_obj, cc16_output_mode);
 
 static mp_obj_t cc16_output_on(mp_obj_t self_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
@@ -110,27 +110,51 @@ static mp_obj_t cc16_output_toggle(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_toggle_obj, cc16_output_toggle);
 
+static mp_obj_t cc16_output_duty(mp_obj_t self_in, mp_obj_t duty_in) {
+    cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    if (!cc16_pin_is_none(self->pwm_pin)) {
+        cc16_ftm_set_pwm(self->pwm_pin, mp_obj_get_int(duty_in));
+    } else {
+        mp_raise_ValueError(MP_ERROR_TEXT("pin does not support PWM"));
+    }
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(cc16_output_duty_obj, cc16_output_duty);
+
 static mp_obj_t cc16_output_voltage(mp_obj_t self_in) {
     cc16_output_obj_t *self = self_in;
     if (!cc16_pin_is_none(self->voltage_pin)) {
         uint32_t sample = cc16_adc_sample(self->voltage_pin);
         uint32_t fsd = 39340;
-        uint32_t mv = (sample * fsd) / 4096;
-        return MP_OBJ_NEW_SMALL_INT(mv);
+        uint32_t mV = (sample * fsd) / 4096;
+        return MP_OBJ_NEW_SMALL_INT(mV);
     }
-    mp_raise_ValueError(MP_ERROR_TEXT("pin does not support analog input"));
+    mp_raise_ValueError(MP_ERROR_TEXT("pin does not support voltage measurement"));
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_voltage_obj, cc16_output_voltage);
 
+static mp_obj_t cc16_output_current(mp_obj_t self_in) {
+    cc16_output_obj_t *self = self_in;
+    if (!cc16_pin_is_none(self->current_pin)) {
+        uint32_t sample = cc16_adc_sample(self->current_pin);
+        uint32_t fsd = 5000;
+        uint32_t mA = (sample * fsd) / 4096;
+        return MP_OBJ_NEW_SMALL_INT(mA);
+    }
+    mp_raise_ValueError(MP_ERROR_TEXT("pin does not support current measurement"));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_current_obj, cc16_output_current);
+
 static const mp_rom_map_elem_t cc16_output_locals_dict_table[] = {
-    { MP_ROM_QSTR(MP_QSTR_set_mode), MP_ROM_PTR(&cc16_output_set_mode_obj) },
+    { MP_ROM_QSTR(MP_QSTR_mode), MP_ROM_PTR(&cc16_output_mode_obj) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&cc16_output_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&cc16_output_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_toggle), MP_ROM_PTR(&cc16_output_toggle_obj) },
-//    { MP_ROM_QSTR(MP_QSTR_set_duty), MP_ROM_PTR(&cc16_output_set_duty_obj) },
+    { MP_ROM_QSTR(MP_QSTR_duty), MP_ROM_PTR(&cc16_output_duty_obj) },
     { MP_ROM_QSTR(MP_QSTR_voltage), MP_ROM_PTR(&cc16_output_voltage_obj) },
-//    { MP_ROM_QSTR(MP_QSTR_current), MP_ROM_PTR(&cc16_output_current_obj) },
+    { MP_ROM_QSTR(MP_QSTR_current), MP_ROM_PTR(&cc16_output_current_obj) },
 //    { MP_ROM_QSTR(MP_QSTR_status), MP_ROM_PTR(&cc16_output_status_obj) },
 
     // class constants

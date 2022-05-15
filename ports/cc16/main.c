@@ -57,6 +57,7 @@ void main(void) {
         cc16_output_configure();
         cc16_vref_configure();
         cc16_adc_configure();
+        cc16_ftm_configure();
 
         // Execute _boot.py to set up the filesystem.
         // pyexec_frozen_module("_boot.py");

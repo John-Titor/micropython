@@ -1,14 +1,17 @@
  ☐ Set CAN0 startup speed from the EEPROM
  ☐ CAN
+   ☐ 'standard' interface
+   ☐ reception callback
+   ☐ filters
  ☐ Pins
    ☐ OUTx
      ✔ digital out @done (22-05-14 00:18)
-     ☐ PWM
-       ☐ select PWM mode
-       ☐ configure required FTMs
-       ☐ set pin duty cycle
-     ☐ voltage sensing
-     ☐ current sensing
+     ✔ PWM @done (22-05-15 15:19)
+       ✔ select PWM mode @done (22-05-15 15:19)
+       ✔ configure required FTMs @done (22-05-15 15:19)
+       ✔ set pin duty cycle @done (22-05-15 15:19)
+     ✔ voltage sensing @done (22-05-15 13:12)
+     ✔ current sensing @done (22-05-15 15:19)
      ☐ output status sensing
    ☐ INx
      ✔ digital input @done (22-05-14 00:20)
@@ -38,3 +41,4 @@
 
  Future:
    ☐ interrupt-driven / background ADC sampling / averaging
+   ☐ "smart" OUTx behaviour

@@ -108,7 +108,7 @@ static mp_obj_t cc16_input_voltage(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_input_voltage_obj, cc16_input_voltage);
 
-static mp_obj_t cc16_input_set_pull(mp_obj_t self_in, mp_obj_t pull_in) {
+static mp_obj_t cc16_input_pull(mp_obj_t self_in, mp_obj_t pull_in) {
     cc16_input_obj_t *self = self_in;
     if (!cc16_pin_is_none(self->pullup_pin)) {
         switch (mp_obj_get_int(pull_in)) {
@@ -148,9 +148,9 @@ static mp_obj_t cc16_input_set_pull(mp_obj_t self_in, mp_obj_t pull_in) {
     }
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_set_pull_obj, cc16_input_set_pull);
+static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_pull_obj, cc16_input_pull);
 
-static mp_obj_t cc16_input_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
+static mp_obj_t cc16_input_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     cc16_input_obj_t *self = self_in;
 
     switch (mp_obj_get_int(mode_in)) {
@@ -173,9 +173,9 @@ static mp_obj_t cc16_input_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     }
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_set_mode_obj, cc16_input_set_mode);
+static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_mode_obj, cc16_input_mode);
 
-static mp_obj_t cc16_input_set_range(mp_obj_t self_in, mp_obj_t range_in) {
+static mp_obj_t cc16_input_range(mp_obj_t self_in, mp_obj_t range_in) {
     cc16_input_obj_t *self = self_in;
     if (cc16_pin_is_none(self->rangesel_pin)) {
         mp_raise_ValueError("pin does not support range change");
@@ -193,21 +193,21 @@ static mp_obj_t cc16_input_set_range(mp_obj_t self_in, mp_obj_t range_in) {
     }
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_set_range_obj, cc16_input_set_range);
+static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_range_obj, cc16_input_range);
 
 static const mp_rom_map_elem_t cc16_input_locals_dict_table[] = {
     // instance methods
     { MP_ROM_QSTR(MP_QSTR_get), MP_ROM_PTR(&cc16_input_get_obj) },
     { MP_ROM_QSTR(MP_QSTR_voltage), MP_ROM_PTR(&cc16_input_voltage_obj) },
-    { MP_ROM_QSTR(MP_QSTR_set_mode), MP_ROM_PTR(&cc16_input_set_mode_obj) },
-    { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&cc16_input_set_pull_obj) },
-    { MP_ROM_QSTR(MP_QSTR_set_range), MP_ROM_PTR(&cc16_input_set_range_obj) },
+    { MP_ROM_QSTR(MP_QSTR_mode), MP_ROM_PTR(&cc16_input_mode_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pull), MP_ROM_PTR(&cc16_input_pull_obj) },
+    { MP_ROM_QSTR(MP_QSTR_range), MP_ROM_PTR(&cc16_input_range_obj) },
 
     // class constants
     { MP_ROM_QSTR(MP_QSTR_PULL_NONE), MP_ROM_INT(INPUT_PULL_NONE)},
     { MP_ROM_QSTR(MP_QSTR_PULL_DOWN), MP_ROM_INT(INPUT_PULL_UP)},
     { MP_ROM_QSTR(MP_QSTR_PULL_DOWN), MP_ROM_INT(INPUT_PULL_DOWN)},
-    { MP_ROM_QSTR(MP_QSTR_MODE_ANALOG), MP_ROM_INT(INPUT_MODE_ANALOG)},
+    { MP_ROM_QSTR(MP_QSTR_MODE_ANALOG_IN), MP_ROM_INT(INPUT_MODE_ANALOG)},
     { MP_ROM_QSTR(MP_QSTR_MODE_DIGITAL), MP_ROM_INT(INPUT_MODE_DIGITAL)},
     { MP_ROM_QSTR(MP_QSTR_RANGE_16V), MP_ROM_INT(INPUT_RANGE_16V)},
     { MP_ROM_QSTR(MP_QSTR_RANGE_32V), MP_ROM_INT(INPUT_RANGE_32V)},

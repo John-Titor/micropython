@@ -1,3 +1,5 @@
+// Basic ADC support
+//
 
 #include "cc16.h"
 
