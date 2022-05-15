@@ -136,11 +136,14 @@ cc16_pin_get(Pin_t pin)
     if (pin.port <= Pin_PortE) {
         assert(pin.index < 18);
         assert((pin.mux == Pin_GPIO) || (pin.mux == Pin_Analog));
-        assert(pin.direction == Pin_IN);
-
         uint32_t mask = (uint32_t)1 << pin.index;
         volatile PT_regs_t *io = _pin_io(pin);
-        return io->PDIR & mask;
+
+        if (pin.direction == Pin_IN) {
+            return io->PDIR & mask;
+        } else {
+            return io->PDOR & mask;
+        }
     } else {
         // Pin_PortX, Pin_PortNone ignored
     }

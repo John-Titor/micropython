@@ -44,35 +44,35 @@ typedef struct
     uint32_t  direction:1;
     uint32_t  pull:2;
     uint32_t  initial:1;
-    uint32_t  adc:2;
+    uint32_t  adc:1;
     uint32_t  ftm:3;
     uint32_t  channel:4;
 } Pin_t;
 
-extern void     cc16_pin_init(void);
-extern void     cc16_pin_configure(Pin_t pin);
-extern void     cc16_pin_set(Pin_t pin, bool v);
-extern bool     cc16_pin_get(Pin_t pin);
-extern void     cc16_pin_toggle(Pin_t pin);
-static inline bool cc16_pin_is_none(Pin_t pin) { return pin.port == Pin_PortNone; }
+extern void         cc16_pin_init(void);
+extern void         cc16_pin_configure(Pin_t pin);
+extern void         cc16_pin_set(Pin_t pin, bool v);
+extern bool         cc16_pin_get(Pin_t pin);
+extern void         cc16_pin_toggle(Pin_t pin);
+static inline bool  cc16_pin_is_none(Pin_t pin) { return pin.port == Pin_PortNone; }
 
 //
 // Pins on the port expander.
 //
-#define DCDC_8V5        (Pin_t){ .port = Pin_PortX, .index = 0 }
-#define DCDC_10V        (Pin_t){ .port = Pin_PortX, .index = 1 }
-#define PD_A_IN5        (Pin_t){ .port = Pin_PortX, .index = 2 }
-#define PD_A_IN4        (Pin_t){ .port = Pin_PortX, .index = 3 }
-#define PD_A_IN3        (Pin_t){ .port = Pin_PortX, .index = 4 }
-#define PD_A_IN2        (Pin_t){ .port = Pin_PortX, .index = 5 }
-#define PD_A_IN1        (Pin_t){ .port = Pin_PortX, .index = 6 }
-#define PD_A_IN0        (Pin_t){ .port = Pin_PortX, .index = 7 }
-#define PU_A_IN5        (Pin_t){ .port = Pin_PortX, .index = 8 }
-#define PU_A_IN4        (Pin_t){ .port = Pin_PortX, .index = 9 }
-#define PU_A_IN3        (Pin_t){ .port = Pin_PortX, .index = 10 }
-#define PU_A_IN2        (Pin_t){ .port = Pin_PortX, .index = 11 }
-#define PU_A_IN1        (Pin_t){ .port = Pin_PortX, .index = 12 }
-#define PU_A_IN0        (Pin_t){ .port = Pin_PortX, .index = 13 }
+#define DCDC_8V5        (Pin_t){ .port = Pin_PortX, .index = 0,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define DCDC_10V        (Pin_t){ .port = Pin_PortX, .index = 1,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PD_A_IN5        (Pin_t){ .port = Pin_PortX, .index = 2,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PD_A_IN4        (Pin_t){ .port = Pin_PortX, .index = 3,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PD_A_IN3        (Pin_t){ .port = Pin_PortX, .index = 4,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PD_A_IN2        (Pin_t){ .port = Pin_PortX, .index = 5,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PD_A_IN1        (Pin_t){ .port = Pin_PortX, .index = 6,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PD_A_IN0        (Pin_t){ .port = Pin_PortX, .index = 7,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PU_A_IN5        (Pin_t){ .port = Pin_PortX, .index = 8,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PU_A_IN4        (Pin_t){ .port = Pin_PortX, .index = 9,  .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PU_A_IN3        (Pin_t){ .port = Pin_PortX, .index = 10, .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PU_A_IN2        (Pin_t){ .port = Pin_PortX, .index = 11, .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PU_A_IN1        (Pin_t){ .port = Pin_PortX, .index = 12, .mux = Pin_GPIO, .direction = Pin_OUT }
+#define PU_A_IN0        (Pin_t){ .port = Pin_PortX, .index = 13, .mux = Pin_GPIO, .direction = Pin_OUT }
 
 //
 // Internal GPIO pins.

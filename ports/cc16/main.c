@@ -33,7 +33,6 @@
 #include "shared/runtime/pyexec.h"
 
 #include "cc16.h"
-#include "s32k144.h"
 
 extern uint32_t _heap_start;
 extern uint32_t _heap_end;
@@ -46,14 +45,18 @@ void main(void) {
 
     // basic core init
     mp_stack_ctrl_init();
+
+    // restart loop
     for (;;) {
         gc_init(&_heap_start, &_heap_end);
         mp_init();
 
-        // (re)init pins
+        // hardware init
         cc16_pin_init();
         cc16_input_configure();
         cc16_output_configure();
+        cc16_vref_configure();
+        cc16_adc_configure();
 
         // Execute _boot.py to set up the filesystem.
         // pyexec_frozen_module("_boot.py");

@@ -88,13 +88,27 @@ static mp_obj_t cc16_input_call(mp_obj_t self_in, size_t n_args, size_t n_kw, co
     }
 }
 
-mp_obj_t cc16_input_get(mp_obj_t self_in) {
+static mp_obj_t cc16_input_get(mp_obj_t self_in) {
     cc16_input_obj_t *self = self_in;
     return MP_OBJ_NEW_SMALL_INT(cc16_pin_get(self->digital_pin));
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_input_get_obj, cc16_input_get);
 
-mp_obj_t cc16_input_set_pull(mp_obj_t self_in, mp_obj_t pull_in) {
+static mp_obj_t cc16_input_voltage(mp_obj_t self_in) {
+    cc16_input_obj_t *self = self_in;
+    if (!cc16_pin_is_none(self->analog_pin)) {
+        uint32_t sample = cc16_adc_sample(self->analog_pin);
+        uint32_t fsd = (!cc16_pin_is_none(self->rangesel_pin) && 
+                        cc16_pin_get(self->rangesel_pin)) ? self->vrefh : self->vrefl;
+        uint32_t mv = (sample * fsd) / 4096;
+        return MP_OBJ_NEW_SMALL_INT(mv);
+    }
+    mp_raise_ValueError(MP_ERROR_TEXT("pin does not support analog input"));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(cc16_input_voltage_obj, cc16_input_voltage);
+
+static mp_obj_t cc16_input_set_pull(mp_obj_t self_in, mp_obj_t pull_in) {
     cc16_input_obj_t *self = self_in;
     if (!cc16_pin_is_none(self->pullup_pin)) {
         switch (mp_obj_get_int(pull_in)) {
@@ -136,7 +150,7 @@ mp_obj_t cc16_input_set_pull(mp_obj_t self_in, mp_obj_t pull_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_set_pull_obj, cc16_input_set_pull);
 
-mp_obj_t cc16_input_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
+static mp_obj_t cc16_input_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     cc16_input_obj_t *self = self_in;
 
     switch (mp_obj_get_int(mode_in)) {
@@ -161,7 +175,7 @@ mp_obj_t cc16_input_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_set_mode_obj, cc16_input_set_mode);
 
-mp_obj_t cc16_input_set_range(mp_obj_t self_in, mp_obj_t range_in) {
+static mp_obj_t cc16_input_set_range(mp_obj_t self_in, mp_obj_t range_in) {
     cc16_input_obj_t *self = self_in;
     if (cc16_pin_is_none(self->rangesel_pin)) {
         mp_raise_ValueError("pin does not support range change");
@@ -184,6 +198,7 @@ static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_set_range_obj, cc16_input_set_range)
 static const mp_rom_map_elem_t cc16_input_locals_dict_table[] = {
     // instance methods
     { MP_ROM_QSTR(MP_QSTR_get), MP_ROM_PTR(&cc16_input_get_obj) },
+    { MP_ROM_QSTR(MP_QSTR_voltage), MP_ROM_PTR(&cc16_input_voltage_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_mode), MP_ROM_PTR(&cc16_input_set_mode_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_pull), MP_ROM_PTR(&cc16_input_set_pull_obj) },
     { MP_ROM_QSTR(MP_QSTR_set_range), MP_ROM_PTR(&cc16_input_set_range_obj) },

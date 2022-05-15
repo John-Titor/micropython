@@ -22,12 +22,13 @@ static const cc16_output_obj_t cc16_output_obj[] = {
     {{&cc16_output_type}, DO_HSD2_OUT5, PWM_HSD2_OUT5, DI_AI_OUT5, DI_AI_INA_OUT5, DI_AI_SNS2, DO_CS_HSD2},
     {{&cc16_output_type}, DO_HSD2_OUT6, PWM_HSD2_OUT6, DI_AI_OUT6, DI_AI_INA_OUT6, DI_AI_SNS3, DO_CS_HSD2},
     {{&cc16_output_type}, DO_HSD2_OUT7, PWM_HSD2_OUT7, DI_AI_OUT7, DI_AI_INA_OUT7, DI_AI_SNS4, DO_CS_HSD2},
+    {{&cc16_output_type}, DO_POWER,     PIN_NONE,      PIN_NONE,   PIN_NONE,       PIN_NONE,   PIN_NONE},
 };
 
 enum {
-    OUT_MODE_DIGITAL,
-    OUT_MODE_PWM,
-    OUT_MODE_ANALOG,
+    OUTPUT_MODE_DIGITAL,
+    OUTPUT_MODE_PWM,
+    OUTPUT_MODE_ANALOG_IN,
 };
 
 #define NUM_OUTPUT MP_ARRAY_SIZE(cc16_output_obj)
@@ -63,43 +64,64 @@ static mp_obj_t cc16_output_make_new(const mp_obj_type_t *type, size_t n_args, s
 static mp_obj_t cc16_output_set_mode(mp_obj_t self_in, mp_obj_t mode_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
     switch (mp_obj_get_int(mode_in)) {
-    case OUT_MODE_DIGITAL:
+    case OUTPUT_MODE_DIGITAL:
         cc16_pin_configure(self->digital_pin);
         break;
-    case OUT_MODE_PWM:
-        cc16_pin_configure(self->pwm_pin);
-        // XXX set base duty cycle
-        // XXX enable PWM output from FTM
+    case OUTPUT_MODE_PWM:
+        if (cc16_pin_is_none(self->pwm_pin)) {
+            mp_raise_ValueError(MP_ERROR_TEXT("pin does not support PWM"));
+        } else {
+            cc16_pin_configure(self->pwm_pin);
+            // XXX set base duty cycle
+            // XXX enable PWM output from FTM
+        }
         break;
-    case OUT_MODE_ANALOG:
-        cc16_pin_configure(self->digital_pin);
-        cc16_pin_set(self->digital_pin, false);
+    case OUTPUT_MODE_ANALOG_IN:
+        if (cc16_pin_is_none(self->voltage_pin)) {
+            mp_raise_ValueError(MP_ERROR_TEXT("pin does not support analog input"));
+        } else {
+            cc16_pin_configure(self->digital_pin);
+            cc16_pin_set(self->digital_pin, false);
+        }
         break;
     }
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(cc16_output_set_mode_obj, cc16_output_set_mode);
 
-mp_obj_t cc16_output_on(mp_obj_t self_in) {
+static mp_obj_t cc16_output_on(mp_obj_t self_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
     cc16_pin_set(self->digital_pin, true);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_on_obj, cc16_output_on);
 
-mp_obj_t cc16_output_off(mp_obj_t self_in) {
+static mp_obj_t cc16_output_off(mp_obj_t self_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
     cc16_pin_set(self->digital_pin, false);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_off_obj, cc16_output_off);
 
-mp_obj_t cc16_output_toggle(mp_obj_t self_in) {
+static mp_obj_t cc16_output_toggle(mp_obj_t self_in) {
     cc16_output_obj_t *self = MP_OBJ_TO_PTR(self_in);
     cc16_pin_toggle(self->digital_pin);
     return mp_const_none;
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_toggle_obj, cc16_output_toggle);
+
+static mp_obj_t cc16_output_voltage(mp_obj_t self_in) {
+    cc16_output_obj_t *self = self_in;
+    if (!cc16_pin_is_none(self->voltage_pin)) {
+        uint32_t sample = cc16_adc_sample(self->voltage_pin);
+        uint32_t fsd = 39340;
+        uint32_t mv = (sample * fsd) / 4096;
+        return MP_OBJ_NEW_SMALL_INT(mv);
+    }
+    mp_raise_ValueError(MP_ERROR_TEXT("pin does not support analog input"));
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(cc16_output_voltage_obj, cc16_output_voltage);
 
 static const mp_rom_map_elem_t cc16_output_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_set_mode), MP_ROM_PTR(&cc16_output_set_mode_obj) },
@@ -107,9 +129,14 @@ static const mp_rom_map_elem_t cc16_output_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_off), MP_ROM_PTR(&cc16_output_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_toggle), MP_ROM_PTR(&cc16_output_toggle_obj) },
 //    { MP_ROM_QSTR(MP_QSTR_set_duty), MP_ROM_PTR(&cc16_output_set_duty_obj) },
-//    { MP_ROM_QSTR(MP_QSTR_voltage), MP_ROM_PTR(&cc16_output_voltage_obj) },
+    { MP_ROM_QSTR(MP_QSTR_voltage), MP_ROM_PTR(&cc16_output_voltage_obj) },
 //    { MP_ROM_QSTR(MP_QSTR_current), MP_ROM_PTR(&cc16_output_current_obj) },
 //    { MP_ROM_QSTR(MP_QSTR_status), MP_ROM_PTR(&cc16_output_status_obj) },
+
+    // class constants
+    { MP_ROM_QSTR(MP_QSTR_MODE_DIGITAL), MP_ROM_INT(OUTPUT_MODE_DIGITAL)},
+    { MP_ROM_QSTR(MP_QSTR_MODE_PWM), MP_ROM_INT(OUTPUT_MODE_PWM)},
+    { MP_ROM_QSTR(MP_QSTR_MODE_ANALOG), MP_ROM_INT(OUTPUT_MODE_ANALOG_IN)},
 };
 
 static MP_DEFINE_CONST_DICT(cc16_output_locals_dict, cc16_output_locals_dict_table);
