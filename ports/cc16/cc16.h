@@ -2,14 +2,21 @@
 #ifndef MICROPY_INCLUDED_CC16_H
 #define MICROPY_INCLUDED_CC16_H
 
+#include "py/runtime.h"
+
+#include "cc16_pin.h"
 #include "s32k144.h"
 
 extern void main(void);
 extern void cc16_init(void);
 extern void s32k_can_early_init(void);
 
-extern const mp_obj_type_t cc16_hsd_type;
+extern void cc16_input_configure(void);
+extern void cc16_output_configure(void);
+
+extern const mp_obj_type_t cc16_output_type;
 extern const mp_obj_type_t cc16_input_type;
+extern const mp_obj_type_t cc16_vref_type;
 
 typedef struct {
 	uint8_t		adc:1;

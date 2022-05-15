@@ -3,8 +3,7 @@
 
 #include <assert.h>
 
-#include "cc16_pin.h"
-#include "s32k144.h"
+#include "cc16.h"
 
 static uint16_t             _portX_state;
 static void                 _portX_update(void);
@@ -13,94 +12,37 @@ static volatile PT_regs_t   *_pin_io(Pin_t pin);
 void
 cc16_pin_init()
 {
-    cc16_pin_configure(DCDC_8V5);
-    cc16_pin_configure(DCDC_10V);
-    cc16_pin_configure(PD_A_IN5);
-    cc16_pin_configure(PD_A_IN4);
-    cc16_pin_configure(PD_A_IN3);
-    cc16_pin_configure(PD_A_IN2);
-    cc16_pin_configure(PD_A_IN1);
-    cc16_pin_configure(PD_A_IN0);
-    cc16_pin_configure(PU_A_IN5);
-    cc16_pin_configure(PU_A_IN4);
-    cc16_pin_configure(PU_A_IN3);
-    cc16_pin_configure(PU_A_IN2);
-    cc16_pin_configure(PU_A_IN1);
-    cc16_pin_configure(PU_A_IN0);
-    cc16_pin_configure(DI_KL15);
-    cc16_pin_configure(DI_PGD);
-    cc16_pin_configure(DO_CS_HSD1);
-    cc16_pin_configure(DO_CS_HSD2);
+    cc16_pin_configure(DO_SHIFT_IN_DS);     // required to control
+    cc16_pin_configure(DO_SHIFT_MR);        //   PortX pins
+    cc16_pin_configure(DO_SHIFT_OE);        // 
+    cc16_pin_configure(DO_SHIFT_SH_CP);     // 
+    cc16_pin_configure(DO_SHIFT_ST_CP);     // 
+
     cc16_pin_configure(DO_POWER);
-    cc16_pin_configure(DO_RS0);
-    cc16_pin_configure(DO_RS1);
-    cc16_pin_configure(DO_RS2);
-    cc16_pin_configure(DO_RS3);
-    cc16_pin_configure(DO_RS4);
-    cc16_pin_configure(DO_RS5);
-    cc16_pin_configure(DO_SHIFT_IN_DS);
-    cc16_pin_configure(DO_SHIFT_MR);
-    cc16_pin_configure(DO_SHIFT_OE);
-    cc16_pin_configure(DO_SHIFT_SH_CP);
-    cc16_pin_configure(DO_SHIFT_ST_CP);
-    cc16_pin_configure(DO_VREF_EN);
-    cc16_pin_configure(LIN_EN);
-    cc16_pin_configure(MC_CAN_RXD1);
-    cc16_pin_configure(MC_CAN_RXD2);
-    cc16_pin_configure(MC_CAN_TXD1);
+
+    //cc16_pin_configure(MC_CAN_RXD1);      // leave these alone, set
+    //cc16_pin_configure(MC_CAN_TXD1);      //   up by bootrom
+    //cc16_pin_configure(DO_CAN_EN1);
+    //cc16_pin_configure(DO_CAN_ERR1);
+    //cc16_pin_configure(DO_CAN_STB1);
+    //cc16_pin_configure(DO_CAN_WAKE1);
+
+    cc16_pin_configure(MC_CAN_RXD2);        // second CAN
     cc16_pin_configure(MC_CAN_TXD2);
-    cc16_pin_configure(MC_SCI_RXD);
+    cc16_pin_configure(DO_CAN_EN2);
+    cc16_pin_configure(DO_CAN_ERR2);
+    cc16_pin_configure(DO_CAN_STB2);
+    cc16_pin_configure(DO_CAN_WAKE2);
+
+    cc16_pin_configure(MC_SCI_RXD);         // serial/LIN port
     cc16_pin_configure(MC_SCI_TXD);
-    // cc16_pin_configure(Pin74);
-    // cc16_pin_configure(Pin82);
-    // cc16_pin_configure(WD);
-    cc16_pin_configure(DI_AI_INA_OUT0);
-    cc16_pin_configure(DI_AI_INA_OUT1);
-    cc16_pin_configure(DI_AI_INA_OUT2);
-    cc16_pin_configure(DI_AI_INA_OUT3);
-    cc16_pin_configure(DI_AI_INA_OUT4);
-    cc16_pin_configure(DI_AI_INA_OUT5);
-    cc16_pin_configure(DI_AI_INA_OUT6);
-    cc16_pin_configure(DI_AI_INA_OUT7);
-    cc16_pin_configure(DI_AI_KL30_1);
-    cc16_pin_configure(DI_AI_KL30_2);
-    cc16_pin_configure(DI_AI_OUT0);
-    cc16_pin_configure(DI_AI_OUT1);
-    cc16_pin_configure(DI_AI_OUT2);
-    cc16_pin_configure(DI_AI_OUT3);
-    cc16_pin_configure(DI_AI_OUT4);
-    cc16_pin_configure(DI_AI_OUT5);
-    cc16_pin_configure(DI_AI_OUT6);
-    cc16_pin_configure(DI_AI_OUT7);
-    cc16_pin_configure(DI_AI_SNS1);
-    cc16_pin_configure(DI_AI_SNS2);
-    cc16_pin_configure(DI_AI_SNS3);
-    cc16_pin_configure(DI_AI_SNS4);
-    cc16_pin_configure(DI_AI_VARIANTE);
-    cc16_pin_configure(DI_AI_VREF);
-    cc16_pin_configure(MC_FREQ_A_IN0);
-    cc16_pin_configure(MC_FREQ_A_IN1);
-    cc16_pin_configure(MC_FREQ_A_IN2);
-    cc16_pin_configure(MC_FREQ_A_IN3);
-    cc16_pin_configure(MC_FREQ_A_IN4);
-    cc16_pin_configure(MC_FREQ_A_IN5);
-    cc16_pin_configure(DI_AI_A_IN0);
-    cc16_pin_configure(DI_AI_A_IN1);
-    cc16_pin_configure(DI_AI_A_IN2);
-    cc16_pin_configure(DI_AI_A_IN3);
-    cc16_pin_configure(DI_AI_A_IN4);
-    cc16_pin_configure(DI_AI_A_IN5);
-    cc16_pin_configure(DI_AI_ID);
-    cc16_pin_configure(DI_INTERFACE2_A);
-    cc16_pin_configure(DI_INTERFACE2_B);
-    cc16_pin_configure(DO_HSD1_OUT0);
-    cc16_pin_configure(DO_HSD1_OUT1);
-    cc16_pin_configure(DO_HSD1_OUT2);
-    cc16_pin_configure(DO_HSD1_OUT3);
-    cc16_pin_configure(DO_HSD2_OUT4);
-    cc16_pin_configure(DO_HSD2_OUT5);
-    cc16_pin_configure(DO_HSD2_OUT6);
-    cc16_pin_configure(DO_HSD2_OUT7);
+    cc16_pin_configure(LIN_EN);
+
+    // cc16_pin_configure(Pin74);           // unused
+    // cc16_pin_configure(Pin82);           // unused
+    // cc16_pin_configure(WD);              // unused
+    // cc16_pin_configure(DI_AI_VARIANTE);  // unused
+
 }
 
 void
@@ -129,10 +71,11 @@ cc16_pin_configure(Pin_t pin)
                                     pin.port == Pin_PortC ? PORTC :
                                     pin.port == Pin_PortD ? PORTD :
                                     PORTE;
+        uint32_t gpwd = PORT_GPCLR_GPWD((pin.mux << 8) | pin.pull);
         if (pin.index < 16) {
-            cfg->GPCLR = PORT_GPCLR_GPWE(mask) | PORT_GPCLR_GPWD(pin.mux << 8);
+            cfg->GPCLR = PORT_GPCLR_GPWE(mask) | gpwd;
         } else {
-            cfg->GPCHR = PORT_GPCHR_GPWE(mask >> 16) | PORT_GPCLR_GPWD(pin.mux << 8);
+            cfg->GPCHR = PORT_GPCHR_GPWE(mask >> 16) | gpwd;
         }
 
         // select GPIO direction

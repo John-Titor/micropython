@@ -4,26 +4,30 @@
    ☐ OUTx
      ✔ digital out @done (22-05-14 00:18)
      ☐ PWM
+       ☐ select PWM mode
+       ☐ configure required FTMs
+       ☐ set pin duty cycle
      ☐ voltage sensing
      ☐ current sensing
      ☐ output status sensing
    ☐ INx
      ✔ digital input @done (22-05-14 00:20)
+       ✔ pull control @done (22-05-14 19:41)
      ☐ analog input
-       ☐ range selection
+       ✔ range selection @done (22-05-14 19:42)
        ☐ averaging
      ✔ pull up/down @done (22-05-14 00:20)
      ☐ frequency
      ☐ duty cycle
    ☐ misc analog pins
      DI_AI_ID, DI_AI_KL30_x
-     ☐ digital input
-       XXX not available while mux'ed for analog
+     ✔ digital input @done (22-05-14 20:36)
      ☐ analog input
        ☐ averaging
    ☐ misc digital pins
      DI_KL15, DI_INTERFACE2_x
-     ☐ digital input
+     ✔ digital input @done (22-05-14 19:44)
+     ✔ pull control @done (22-05-14 19:44)
    ☐ Vref
      ☐ selection
      ☐ sensing

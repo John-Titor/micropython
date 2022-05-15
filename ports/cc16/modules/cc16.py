@@ -1,28 +1,29 @@
 import umachine
 
-# HSD outputs
-OUT0 = umachine.HSD(0)
-OUT1 = umachine.HSD(1)
-OUT2 = umachine.HSD(2)
-OUT3 = umachine.HSD(3)
-OUT4 = umachine.HSD(4)
-OUT5 = umachine.HSD(5)
-OUT6 = umachine.HSD(6)
-OUT7 = umachine.HSD(7)
+# External OUTx pins
+OUT0 = umachine.Output(0)
+OUT1 = umachine.Output(1)
+OUT2 = umachine.Output(2)
+OUT3 = umachine.Output(3)
+OUT4 = umachine.Output(4)
+OUT5 = umachine.Output(5)
+OUT6 = umachine.Output(6)
+OUT7 = umachine.Output(7)
 
-# Inputs
-IN0 = umachine.IN(0)
-IN1 = umachine.IN(1)
-IN2 = umachine.IN(2)
-IN3 = umachine.IN(3)
-IN4 = umachine.IN(4)
-IN5 = umachine.IN(5)
-ID = umachine.IN(6)
-KL30_1 = umachine.IN(7)
-KL30_2 = umachine.IN(8)
-KL15 = umachine.IN(9)
-INTERFACE2_A = umachine.IN(10)
-INTERFACE2_B = umachine.IN(11)
+# External INx pins
+IN0 = umachine.Input(0)
+IN1 = umachine.Input(1)
+IN2 = umachine.Input(2)
+IN3 = umachine.Input(3)
+IN4 = umachine.Input(4)
+IN5 = umachine.Input(5)
 
-# Vref control
-# Vref = 
+# External analog signals
+ID = umachine.Input(6)
+KL30_1 = umachine.Input(7)
+KL30_2 = umachine.Input(8)
+
+# External digital signals
+KL15 = umachine.Input(9)
+INTERFACE2_A = umachine.Input(10)
+INTERFACE2_B = umachine.Input(11)
