@@ -52,7 +52,7 @@ void main(void) {
         mp_init();
 
         // hardware init
-        s32k_can_early_init();
+        s32k_can_configure();
         cc16_pin_init();
         cc16_input_configure();
         cc16_output_configure();
