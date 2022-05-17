@@ -20,6 +20,7 @@ extern void cc16_ftm_set_pwm(Pin_t pin, uint32_t value);
 extern const mp_obj_type_t cc16_output_type;
 extern const mp_obj_type_t cc16_input_type;
 extern const mp_obj_type_t cc16_vref_type;
+extern const mp_obj_type_t cc16_can_type;
 
 typedef struct {
     uint8_t adc : 1;

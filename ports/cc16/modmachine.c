@@ -52,6 +52,7 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Output),              MP_ROM_PTR(&cc16_output_type) },
     { MP_ROM_QSTR(MP_QSTR_Input),               MP_ROM_PTR(&cc16_input_type) },
     { MP_ROM_QSTR(MP_QSTR_Vref),                MP_ROM_PTR(&cc16_vref_type) },
+    { MP_ROM_QSTR(MP_QSTR_CAN),                 MP_ROM_PTR(&cc16_can_type) },
 };
 STATIC MP_DEFINE_CONST_DICT(machine_module_globals, machine_module_globals_table);
 

@@ -57,10 +57,10 @@ typedef long mp_off_t;
 // Need to provide a declaration/definition of alloca()
 #include <alloca.h>
 
-#define MICROPY_HW_BOARD_NAME                   "MRS CC16"
-#define MICROPY_HW_MCU_NAME                     "S32K144"
+#define MICROPY_HW_BOARD_NAME               "MRS CC16"
+#define MICROPY_HW_MCU_NAME                 "S32K144"
 
-#define MP_STATE_PORT                           MP_STATE_VM
+#define MP_STATE_PORT                       MP_STATE_VM
 
 // Miscellaneous settings
 
