@@ -1,0 +1,23 @@
+Features:
+  ✔ REPL-on-display @done (23-07-29 21:02)
+  ☐ mass storage / cartridge "filesystem"?
+    ☐ FDC driver
+    ☐ MP VFS & FAT filesystem
+  ☐ 680x0 support for x > 0
+    ✔ exception frames @done (23-07-30 14:14)
+    ☐ verbose handler output
+    ✔ build system support @done (23-07-30 14:14)
+  ☐ 6888x FPU support
+    Needs a suitable math library...
+  ☐ automatic memory detection
+  ☐ STe support
+    ☐ system init
+    ☐ video modes
+  ☐ TT support
+    ☐ system init
+    ☐ video modes
+    ☐ SCC
+
+Issues:
+  ✔ REPL line editing hides characters right of the cursor @done (23-07-30 12:40)
+  ☐ REPL line edit does not undraw wrapped line fragments (this might be a readline problem)
