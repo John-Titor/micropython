@@ -7,7 +7,9 @@ typedef struct _cc16_vref_obj_t {
     mp_obj_base_t base;             // object type
 } cc16_vref_obj_t;
 
-static const cc16_vref_obj_t cc16_vref_obj = {{&cc16_vref_type}};
+static const cc16_vref_obj_t cc16_vref_obj[] = {
+    {{&cc16_vref_type}},
+};
 
 enum {
     VREF_NONE,
@@ -34,7 +36,7 @@ static void cc16_vref_print(const mp_print_t *print, mp_obj_t self_in, mp_print_
 
 static mp_obj_t cc16_vref_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_arg_check_num(n_args, n_kw, 0, 0, false);
-    return (mp_obj_t)&cc16_vref_obj;
+    return (mp_obj_t)&cc16_vref_obj[0];
 }
 
 static mp_obj_t cc16_vref_set_(mp_obj_t self_in, mp_obj_t voltage_in) {
@@ -95,10 +97,13 @@ static const mp_rom_map_elem_t cc16_vref_locals_dict_table[] = {
 
 static MP_DEFINE_CONST_DICT(cc16_vref_locals_dict, cc16_vref_locals_dict_table);
 
-const mp_obj_type_t cc16_vref_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_Vref,
-    .print = cc16_vref_print,
-    .make_new = cc16_vref_make_new,
-    .locals_dict = (mp_obj_t)&cc16_vref_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    cc16_vref_type,
+    MP_QSTR_vref,
+    MP_TYPE_FLAG_NONE,
+    make_new, cc16_vref_make_new,
+    print, cc16_vref_print,
+    locals_dict, &cc16_vref_locals_dict
+    );
+
+MP_REGISTER_ROOT_POINTER(void *cc16_vref_obj[1]);

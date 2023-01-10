@@ -5,7 +5,8 @@
 
 extern volatile uint32_t systick_ms;
 
-extern void mp_hal_set_interrupt_char(int c);   // XXX can we use mp_interrupt_char instead?
+extern int mp_interrupt_char;
+extern void mp_hal_set_interrupt_char(int c);
 
 static inline mp_uint_t mp_hal_ticks_ms(void) {
     return systick_ms;

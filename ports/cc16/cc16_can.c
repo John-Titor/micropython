@@ -5,13 +5,16 @@
 // 0-7: RX FIFO and 8 FIFO mask registers
 // 8: console RX mailbox
 // 9: console TX mailbox
-// 10-15 / 10-31: free for buffered tx?
+// 10-15 / 10-31: free for buffered tx
 
 #include "py/mphal.h"
 #include "py/runtime.h"
 #include "py/stream.h"
 
-#include "s32k144.h"
+#include "cc16.h"
+
+#define CAN_NUM_RX_FILTERS  8
+#define CAN_MAX_DATA_FRAME  8
 
 typedef union {
     struct {
@@ -47,7 +50,7 @@ typedef union {
         uint8_t     data5;
         uint8_t     data4;
     };
-    uint32_t    u32[4];    
+    uint32_t    u32[4];
 } Mailbox_t;
 
 enum {
@@ -105,11 +108,13 @@ static void _can_configure(volatile CAN_regs_t *can) {
     while (!(can->MCR & CAN_MCR_FRZACK)) {
         ;                                       // ... entering frozen mode
     }
-    can->MCR |= CAN_MCR_IRMQ |                  // new-style masking
+    can->MCR |=
+        CAN_MCR_IRMQ |                          // new-style masking
         CAN_MCR_SRXDIS |                        // disable self-reception
         CAN_MCR_RFEN |                          // enable receive FIFO
         CAN_MCR_IDAM(0);                        // 32-bit acceptance filters
-    can->CBT = CAN_CBT_BTF |                    // configure for 500kBPS @ 80MHz
+    can->CBT =
+        CAN_CBT_BTF |                           // configure for 500kBPS @ 80MHz
         CAN_CBT_ERJW(1) |
         CAN_CBT_EPRESDIV(0x09) |
         CAN_CBT_EPROPSEG(0x07) |
@@ -162,7 +167,7 @@ static void _can_configure(volatile CAN_regs_t *can) {
     can->RAMn52 = TX_INACTIVE << 24;                // mark unused TX buffer as idle
     can->RAMn56 = TX_INACTIVE << 24;                // mark unused TX buffer as idle
     can->RAMn60 = TX_INACTIVE << 24;                // mark unused TX buffer as idle
-   
+
 }
 
 void cc16_can_configure(void) {
@@ -208,7 +213,6 @@ void mp_hal_stdout_tx_strn(const char *str, size_t len) {
 static volatile struct {
     char buf[128];
     uint8_t head, tail;
-    int interrupt;
 } cons_buf;
 
 #define CONS_PTR_NEXT(_p)   ((_p + 1) % sizeof(cons_buf.buf))
@@ -225,16 +229,12 @@ static volatile struct {
 // Receive a console byte
 //
 static inline void cons_buf_push(char c) {
-    if (c == cons_buf.interrupt) {
+    if (c == mp_interrupt_char) {
         mp_sched_keyboard_interrupt();
     } else if (!CONS_BUF_FULL) {
         cons_buf.buf[cons_buf.tail] = c;
         cons_buf.tail = CONS_PTR_NEXT(cons_buf.tail);
     }
-}
-
-void mp_hal_set_interrupt_char(int c) {
-    cons_buf.interrupt = c;
 }
 
 // CAN interrupt handlers
@@ -315,7 +315,6 @@ static mp_obj_t cc16_can_make_new(const mp_obj_type_t *type, size_t n_args, size
     }
     return MP_OBJ_FROM_PTR(&cc16_can_obj[bus_index]);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(cc16_can_make_new_obj, cc16_can_make_new);
 
 // send(send, addr, *, timeout=5000)
 static mp_obj_t cc16_can_send(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
@@ -328,7 +327,7 @@ static mp_obj_t cc16_can_send(size_t n_args, const mp_obj_t *pos_args, mp_map_t 
     };
 
     // parse args
-    pyb_can_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
+    cc16_can_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
@@ -346,7 +345,7 @@ static mp_obj_t cc16_can_send(size_t n_args, const mp_obj_t *pos_args, mp_map_t 
         mbox.ide = 1;
         mbox.id_ext = args[ARG_id].u_int & 0x1fffffff;
     } else {
-        mbox_ide = 0;
+        mbox.ide = 0;
         mbox.id = args[ARG_id].u_int & 0x7ff;
     }
     switch (bufinfo.len) {
@@ -372,19 +371,84 @@ static mp_obj_t cc16_can_send(size_t n_args, const mp_obj_t *pos_args, mp_map_t 
     // loop waiting for a free transmit mailbox
     // XXX timeout? bus errors?
     for (;;) {
-        for (mp_uint_t index = MBOX_TX_FIRST; index <= MBOX_TX_LAST; index++) {
+        for (mp_uint_t index = MBOX_FIRST_TX; index <= MBOX_LAST_TX; index++) {
             volatile Mailbox_t *txmbx = (volatile Mailbox_t *)MBOX_ADDR(self->regs, index);
             if (txmbx->code == TX_INACTIVE) {
-                txmbx.u32[1] = mbox.u32[1];
-                txmbx.u32[2] = mbox.u32[2];
-                txmbx.u32[3] = mbox.u32[3];
-                txmbx.u32[0] = mbox.u32[0];
+                txmbx->u32[1] = mbox.u32[1];
+                txmbx->u32[2] = mbox.u32[2];
+                txmbx->u32[3] = mbox.u32[3];
+                txmbx->u32[0] = mbox.u32[0];
                 break;
             }
         }
     }
     return mp_const_none;
 }
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(cc16_can_send_obj, 1, cc16_can_send);
+
+STATIC mp_obj_t cc16_can_recv(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_list, ARG_timeout };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_list,     MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE} },
+        { MP_QSTR_timeout,  MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 5000} },
+    };
+
+    // parse args
+    cc16_can_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    // XXX implement
+    (void)self;
+    mp_raise_OSError(MP_ETIMEDOUT);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(cc16_can_recv_obj, 1, cc16_can_recv);
+
+static mp_obj_t cc16_can_setfilter(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_slot, ARG_mask, ARG_match };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_slot,     MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_mask,     MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_match,    MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+    };
+
+    // parse args
+    cc16_can_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    mp_uint_t slot = args[ARG_slot].u_int;
+    if (slot >= CAN_NUM_RX_FILTERS) {
+        mp_raise_ValueError(MP_ERROR_TEXT("RX filter slot index out of range"));
+    }
+
+    // XXX implement
+    (void)self;
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(cc16_can_setfilter_obj, 3, cc16_can_setfilter);
+
+static mp_obj_t cc16_can_clearfilter(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_slot };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_slot,     MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+    };
+
+    // parse args
+    cc16_can_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    mp_uint_t slot = args[ARG_slot].u_int;
+    if (slot >= CAN_NUM_RX_FILTERS) {
+        mp_raise_ValueError(MP_ERROR_TEXT("RX filter slot index out of range"));
+    }
+
+    // XXX implement
+    (void)self;
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(cc16_can_clearfilter_obj, 1, cc16_can_clearfilter);
 
 static const mp_rom_map_elem_t cc16_can_locals_dict_table[] = {
     // instance methods
@@ -395,12 +459,13 @@ static const mp_rom_map_elem_t cc16_can_locals_dict_table[] = {
 };
 static MP_DEFINE_CONST_DICT(cc16_can_locals_dict, cc16_can_locals_dict_table);
 
+MP_DEFINE_CONST_OBJ_TYPE(
+    cc16_can_type,
+    MP_QSTR_CAN,
+    MP_TYPE_FLAG_NONE,
+    make_new, cc16_can_make_new,
+//    print, cc16_can_print,
+    locals_dict, &cc16_can_locals_dict
+    );
 
-const mp_obj_type_t cc16_can_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_CAN,
-    .print = cc16_can_print,
-    .make_new = cc16_can_make_new,
-    .locals_dict = (mp_obj_dict_t *)&cc16_can_locals_dict,
-};
-
+MP_REGISTER_ROOT_POINTER(void *cc16_can_obj[2]);

@@ -178,7 +178,7 @@ static MP_DEFINE_CONST_FUN_OBJ_2(cc16_input_mode_obj, cc16_input_mode);
 static mp_obj_t cc16_input_range(mp_obj_t self_in, mp_obj_t range_in) {
     cc16_input_obj_t *self = self_in;
     if (cc16_pin_is_none(self->rangesel_pin)) {
-        mp_raise_ValueError("pin does not support range change");
+        mp_raise_ValueError(MP_ERROR_TEXT("pin does not support range change"));
     } else {
         switch (mp_obj_get_int(range_in)) {
             case INPUT_RANGE_16V:
@@ -212,14 +212,16 @@ static const mp_rom_map_elem_t cc16_input_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_RANGE_16V), MP_ROM_INT(INPUT_RANGE_16V)},
     { MP_ROM_QSTR(MP_QSTR_RANGE_32V), MP_ROM_INT(INPUT_RANGE_32V)},
 };
-
 static MP_DEFINE_CONST_DICT(cc16_input_locals_dict, cc16_input_locals_dict_table);
 
-const mp_obj_type_t cc16_input_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_Input,
-    .print = cc16_input_print,
-    .make_new = cc16_input_make_new,
-    .call = cc16_input_call,
-    .locals_dict = (mp_obj_t)&cc16_input_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    cc16_input_type,
+    MP_QSTR_input,
+    MP_TYPE_FLAG_NONE,
+    make_new, cc16_input_make_new,
+    print, cc16_input_print,
+    call, cc16_input_call,
+    locals_dict, &cc16_input_locals_dict
+    );
+
+MP_REGISTER_ROOT_POINTER(void *cc16_input_obj[12]);

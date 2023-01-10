@@ -7,7 +7,7 @@
 #include "cc16_pin.h"
 #include "s32k144.h"
 
-extern void s32k_can_configure(void);
+extern void cc16_can_configure(void);
 
 extern void cc16_input_configure(void);
 extern void cc16_output_configure(void);

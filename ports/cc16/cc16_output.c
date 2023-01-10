@@ -162,13 +162,16 @@ static const mp_rom_map_elem_t cc16_output_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_MODE_PWM), MP_ROM_INT(OUTPUT_MODE_PWM)},
     { MP_ROM_QSTR(MP_QSTR_MODE_ANALOG), MP_ROM_INT(OUTPUT_MODE_ANALOG_IN)},
 };
-
 static MP_DEFINE_CONST_DICT(cc16_output_locals_dict, cc16_output_locals_dict_table);
 
-const mp_obj_type_t cc16_output_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_Output,
-    .print = cc16_output_print,
-    .make_new = cc16_output_make_new,
-    .locals_dict = (mp_obj_t)&cc16_output_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    cc16_output_type,
+    MP_QSTR_output,
+    MP_TYPE_FLAG_NONE,
+    make_new, cc16_output_make_new,
+    print, cc16_output_print,
+    make_new, cc16_output_make_new,
+    locals_dict, &cc16_output_locals_dict
+    );
+
+MP_REGISTER_ROOT_POINTER(void *cc16_output_obj[9]);

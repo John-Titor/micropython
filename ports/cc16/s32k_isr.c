@@ -8,7 +8,7 @@
 extern uint32_t _estack, _sidata, _sdata, _edata, _sbss, _ebss;
 volatile uint32_t systick_ms;
 
-extern void main(void);
+extern void cc16_main(void);
 
 typedef struct {
     uint32_t r0, r1, r2, r3, r12, lr, pc, xpsr;
@@ -159,7 +159,7 @@ void __attribute__((naked)) Reset_Handler(void) {
     __enable_irq();
 
     // call the main application
-    main();
+    cc16_main();
 
     // This function must not return.
     for (;;) {
