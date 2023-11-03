@@ -1,0 +1,5 @@
+ ☐ block device, filesystem, etc. @high
+ ☐ initial ramdisk?
+ ☐ tests
+ ☐ more heap?
+ ☐ virtio devices? console? gpu?

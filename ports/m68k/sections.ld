@@ -57,6 +57,7 @@ SECTIONS
         /* get smart(er) later and make the heap grow to consume all memory */
         . = (512 * 1024);
         _eheap = .;
+        __end = .;
     } > REGION_DATA
 
     /DISCARD/ : {

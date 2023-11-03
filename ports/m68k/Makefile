@@ -16,7 +16,8 @@ include $(TOP)/py/py.mk
 include $(TOP)/extmod/extmod.mk
 
 CROSS_COMPILE ?= m68k-unknown-elf-
-MPY_CROSS_FLAGS += -march=m68000
+# board specifies -mcpu, should probably delete this
+#MPY_CROSS_FLAGS += -march=m$(CPUTYPE)
 
 INC += -I.
 INC += -Iinclude
