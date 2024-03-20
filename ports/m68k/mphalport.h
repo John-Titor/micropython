@@ -25,7 +25,7 @@ extern void m68k_timer_tick(void);
 #define M68K_INTERRUPT_HANDLER(_vector, _label)                                                                        \
     static void                            _label(void);                                                               \
     void                                   m68k_interrupt_handler_##_vector(void) __attribute__((alias(#_label)));     \
-    __attribute__((interrupt)) static void _label(void)
+    __attribute__((interrupt,used)) static void _label(void)
 
 // read SR
 static inline uint16_t
