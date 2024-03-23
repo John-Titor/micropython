@@ -22,6 +22,7 @@
 #define IP940_TIMER_START   0x0210003f  // any access starts CPLD timers
 
 extern void ox16c954_init(void);
+extern void ox16c954_handler(void);
 
 /*
  * Replicate the IP940 startup code.
@@ -61,6 +62,10 @@ void
 m68k_board_init(void) {
     ox16c954_init();                                // init the QUART
     *(volatile uint8_t *)IP940_TIMER_START = 0;     // start the 50/200Hz timers
+}
+
+M68K_INTERRUPT_HANDLER(27, ip940_quart) {
+    ox16c954_handler();
 }
 
 M68K_INTERRUPT_HANDLER(28, ip940_50hz) {

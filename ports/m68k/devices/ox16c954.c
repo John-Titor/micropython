@@ -4,12 +4,10 @@
  */
 
 #include <py/mpconfig.h>
+#include <py/runtime.h>
+#include <mphalport.h>
+#include <stdio.h>
 
-#include "mphalport.h"
-
-#ifndef QUART_VECTOR
-# error QUART_VECTOR must be defined.
-#endif
 #ifndef QUART_STRIDE
 # error QUART_STRIDE must be defined.
 #endif
@@ -28,6 +26,7 @@
 #define QUART_RHR(_chan)            _QUART_REG(_chan, 0)
 #define QUART_DLL(_chan)            _QUART_REG(_chan, 0)
 #define QUART_IER(_chan)            _QUART_REG(_chan, 1)
+#define IER_RXRDY                       (1U<<0)
 #define QUART_DLM(_chan)            _QUART_REG(_chan, 1)
 #define QUART_ASR(_chan)            _QUART_REG(_chan, 1)
 #define QUART_FCR(_chan)            _QUART_REG(_chan, 2)
@@ -35,6 +34,7 @@
 #define QUART_EFR(_chan)            _QUART_REG(_chan, 2)
 #define QUART_LCR(_chan)            _QUART_REG(_chan, 3)
 #define QUART_MCR(_chan)            _QUART_REG(_chan, 4)
+#define MCR_INTEN                       (1U<<3)
 #define QUART_LSR(_chan)            _QUART_REG(_chan, 5)
 #define LSR_THRE                        (1U<<5)
 #define LSR_RXRDY                       (1U<<0)
@@ -50,16 +50,14 @@
 #define QUART_ID2                   (9)
 #define QUART_ID3                   (10)
 
-#define RX_BUF_SIZE     256
-static struct {
-    char buf[RX_BUF_SIZE];
-    volatile uint16_t head;
-    volatile uint16_t tail;
-} quart_rx[QUART_NUM_CHANNELS];
-
 #ifdef QUART_CONSOLE_CHANNEL
 
-// Send string of given length
+static char cons_buf[256];
+volatile uint16_t cons_head;
+volatile uint16_t cons_tail;
+#define CONS_BUF_SIZE   sizeof(cons_buf)
+
+// Send string of given length to console
 void mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
     while (len--) {
         for (;;) {
@@ -71,25 +69,16 @@ void mp_hal_stdout_tx_strn(const char *str, mp_uint_t len) {
     }
 }
 
-// Receive single character
+// Receive single character from console
 int mp_hal_stdin_rx_chr(void) {
     unsigned char c = 0;
-#if 0
     for (;;) {
-        if (duart_rx_head != duart_rx_tail) {
-            c = duart_rx_buf[duart_rx_tail++ % RX_BUF_SIZE];
+        if (cons_head != cons_tail) {
+            c = cons_buf[cons_tail++ % CONS_BUF_SIZE];
+            QUART_IER(QUART_CONSOLE_CHANNEL) |= IER_RXRDY;
             break;
         }
     }
-#else
-    for (;;) {
-        if (QUART_LSR(QUART_CONSOLE_CHANNEL) & LSR_RXRDY) {
-            c = QUART_RHR(QUART_CONSOLE_CHANNEL);
-            break;
-        }
-    }
-#endif
-
     return c;
 }
 
@@ -97,17 +86,30 @@ int mp_hal_stdin_rx_chr(void) {
 
 void ox16c954_init()
 {
-    // XXX
+#ifdef QUART_CONSOLE_CHANNEL
+    // enable console receive interrupts
+    QUART_IER(QUART_CONSOLE_CHANNEL) = IER_RXRDY;
+    QUART_MCR(QUART_CONSOLE_CHANNEL) |= MCR_INTEN;
+#endif
 }
 
-M68K_INTERRUPT_HANDLER(QUART_VECTOR, quart_handler) {
-    for (int i = 0; i < QUART_NUM_CHANNELS; i++) {
-        if (QUART_LSR(i) & LSR_RXRDY) {
-            if ((quart_rx[i].head - quart_rx[i].tail) < RX_BUF_SIZE) {
-                quart_rx[i].buf[quart_rx[i].head++ % RX_BUF_SIZE] = QUART_RHR(i);
-            } else {
-                // XXX mask interrupt & let FIFO handle it
+void ox16c954_handler() {
+    for (int channel = 0; channel < QUART_NUM_CHANNELS; channel++) {
+        if (QUART_LSR(channel) & LSR_RXRDY) {
+#ifdef QUART_CONSOLE_CHANNEL
+            if (channel == QUART_CONSOLE_CHANNEL) {
+                if ((cons_head - cons_tail) < CONS_BUF_SIZE) {
+                    char c = QUART_RHR(channel);
+                    cons_buf[cons_head++ % CONS_BUF_SIZE] = c;
+                    if (c == mp_interrupt_char) {
+                        mp_sched_keyboard_interrupt();
+                    }
+                } else {
+                    // mask interrupt & let FIFO handle it
+                    QUART_IER(channel) &= ~IER_RXRDY;
+                }
             }
+#endif
         }
     }
 }

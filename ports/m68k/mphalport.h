@@ -21,6 +21,10 @@ extern void m68k_timer_tick(void);
 #    define __XSTR(_x) __STR(_x)
 #endif
 
+#ifndef __EVAL
+#    define __EVAL(x)   x
+#endif
+
 // define an interrupt handler
 #define M68K_INTERRUPT_HANDLER(_vector, _label)                                                                        \
     static void                            _label(void);                                                               \
