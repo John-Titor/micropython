@@ -6,8 +6,13 @@
 #include <py/mpconfig.h>
 #include <py/runtime.h>
 #include <mphalport.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#ifndef QUART_CLOCK
+# error QUART_CLOCK must be defined.
+#endif
 #ifndef QUART_STRIDE
 # error QUART_STRIDE must be defined.
 #endif
@@ -15,7 +20,10 @@
 # error QUART_BASE must be defined.
 #endif
 
+#define QUART_OVERSAMPLE            16      /* fixed for now */
+
 #define QUART_NUM_CHANNELS          4
+#define QUART_PRE_SCALE             8       /* 5.3 fixed-point prescaler */
 
 /* normally wired with all 4 channels adjacent */
 #define _QUART_CHAN(_x)             (QUART_BASE + ((_x) * 8 * QUART_STRIDE))
@@ -84,10 +92,56 @@ int mp_hal_stdin_rx_chr(void) {
 
 #endif // QUART_CONSOLE_CHANNEL
 
+#if 0
+static uint32_t isqrt(uint32_t n) {
+    uint32_t x = n / 2;
+    for (;;) {
+        uint32_t prev_x = x;
+        x = (x + n / x) / 2;
+        if (abs(x - prev_x) <= 1) {
+            return ((x * x) > n) ? x - 1 : x;
+        }
+    }
+}
+
+struct br_calc_state {
+    uint32_t    target_rate;
+    int         error;
+    uint16_t    divisor;
+    uint8_t     prescaler;
+};
+
+static void br_config_evaluate(struct br_calc_state *cs, uint16_t divisor, uint8_t prescaler) {
+    uint32_t actual_rate = (QUART_CLOCK * QUART_PRE_SCALE) / (16 * divisor * prescaler);
+    int error = abs(cs->target_rate - actual_rate);
+    if (error < cs->error) {
+        cs->error = error;
+        cs->divisor = divisor;
+        cs->prescaler = prescaler;
+    }
+}
+
+static bool br_config_calculate(struct br_calc_state *cs) {
+    uint32_t n = (QUART_CLOCK * QUART_PRE_SCALE) / (cs->target_rate * QUART_OVERSAMPLE);
+    uint32_t lf = isqrt(n);
+    while (lf > 0) {
+        uint32_t hf = n / lf;
+        if ((lf >= QUART_PRE_SCALE) && (lf < 256)) {
+            br_config_evaluate(cs, hf, lf);
+            br_config_evaluate(cs, hf + 1, lf);
+        } else if ((lf >= QUART_PRE_SCALE) && (lf < 255)) {
+            br_config_evaluate(cs, lf, hf);
+            br_config_evaluate(cs, lf, hf + 1);
+        }
+        lf -= 1;
+    }
+    return cs->divisor != 0;
+}
+#endif
+
 void ox16c954_init()
 {
 #ifdef QUART_CONSOLE_CHANNEL
-    // enable console receive interrupts
     QUART_IER(QUART_CONSOLE_CHANNEL) = IER_RXRDY;
     QUART_MCR(QUART_CONSOLE_CHANNEL) |= MCR_INTEN;
 #endif

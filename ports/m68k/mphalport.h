@@ -11,18 +11,14 @@ extern void m68k_timer_tick(void);
 
 // may already be defined by a standard library header
 #ifndef __CONCAT
-#    define __CONCAT(x, y)  x##y
-#    define __CONCAT2(x, y) __CONCAT(x, y)
+#    define __CONCAT(_x, _y)  _x##_y
+#    define __CONCAT2(_x, _y) __CONCAT(_x, _y)
 #endif
 #ifndef __STR
-#    define __STR(x) #x
+#    define __STR(_x) #_x
 #endif
 #ifndef __XSTR
 #    define __XSTR(_x) __STR(_x)
-#endif
-
-#ifndef __EVAL
-#    define __EVAL(x)   x
 #endif
 
 // define an interrupt handler

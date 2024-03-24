@@ -1,5 +1,5 @@
 //
-// Exception / interrupt handling.
+// M68K architecture support.
 //
 
 #include <stdio.h>
@@ -104,7 +104,7 @@ void m68k_init(void) {
     m68k_board_init();
 
     // enable interrupts
-    m68k_interrupt_enable(M68K_MIN_IPL);
+    m68k_interrupt_enable(M68K_MIN_IPL << 8);
 
     // call main in a loop forever
     for (;;) {

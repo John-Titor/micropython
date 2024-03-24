@@ -3,16 +3,16 @@
 //
 // Default feature config - boards can override this
 //
-#define MICROPY_CONFIG_ROM_LEVEL            MICROPY_CONFIG_ROM_LEVEL_FULL_FEATURES
-#define MICROPY_ENABLE_COMPILER             (1)
-#define MICROPY_HELPER_REPL                 (1)
-#define MICROPY_REPL_INFO                   (1)
-#define MICROPY_ERROR_REPORTING             (MICROPY_ERROR_REPORTING_DETAILED)
-// #define MICROPY_REPL_EVENT_DRIVEN          (1) // XXX investigate
-#define MICROPY_EVENT_POLL_HOOK             do {} while (0);
-#define MICROPY_READER_VFS                  (0)
-#define MICROPY_VFS                         (0)
-#define MICROPY_VFS_FAT                     (0)
+#define MICROPY_CONFIG_ROM_LEVEL                    MICROPY_CONFIG_ROM_LEVEL_FULL_FEATURES
+#define MICROPY_ENABLE_COMPILER                     (1)
+#define MICROPY_HELPER_REPL                         (1)
+#define MICROPY_REPL_INFO                           (1)
+#define MICROPY_ERROR_REPORTING                     (MICROPY_ERROR_REPORTING_DETAILED)
+// #define MICROPY_REPL_EVENT_DRIVEN                  (1) // XXX investigate
+#define MICROPY_EVENT_POLL_HOOK                     do {} while (0);
+#define MICROPY_READER_VFS                          (0)
+#define MICROPY_VFS                                 (0)
+#define MICROPY_VFS_FAT                             (0)
 
 //
 // M68K options that can be set in <mpconfigboard.h>
@@ -29,14 +29,18 @@
 #include <mpconfigboard.h>
 
 //
-// M68k common config - shared by all boards, not overrideable
+// M68k common config - shared by all boards, do not override
 //
-#define MICROPY_PY_SYS_PLATFORM             "m68k"
-#define MICROPY_OPT_COMPUTED_GOTO           (1)
-#define MICROPY_ENABLE_GC                   (1)
-#define MICROPY_GCREGS_SETJMP               (1)
-#define MICROPY_FLOAT_IMPL                  (MICROPY_FLOAT_IMPL_FLOAT)
-#define MP_NEED_LOG2                                            (1)     // not supplied by the float library
+#define MICROPY_PY_SYS_PLATFORM                     "m68k"
+#define MICROPY_OPT_COMPUTED_GOTO                   (1)
+#define MICROPY_ENABLE_GC                           (1)
+#define MICROPY_GCREGS_SETJMP                       (1)
+#define MICROPY_FLOAT_IMPL                          (MICROPY_FLOAT_IMPL_FLOAT)
+#define MP_NEED_LOG2                                (1)     // not supplied by the float library
+#define MICROPY_PY_MACHINE                          (1)
+#define MICROPY_PY_MACHINE_TIMER                    (1)
+#define MICROPY_PY_MACHINE_DISABLE_IRQ_ENABLE_IRQ   (1)
+#define MICROPY_PY_MACHINE_INCLUDEFILE              "ports/m68k/modmachine.c"
 
 // Default alignment is 2; could use -malign-int to get 4-alignment but this seems to
 // trigger a crash in gcc 11.2.0 so align objects up instead.
