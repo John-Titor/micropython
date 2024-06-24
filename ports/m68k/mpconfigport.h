@@ -5,17 +5,12 @@
 //
 #define MICROPY_CONFIG_ROM_LEVEL                    MICROPY_CONFIG_ROM_LEVEL_FULL_FEATURES
 #define MICROPY_ENABLE_COMPILER                     (1)
-#define MICROPY_HELPER_REPL                         (1)
-#define MICROPY_REPL_INFO                           (1)
 #define MICROPY_ERROR_REPORTING                     (MICROPY_ERROR_REPORTING_DETAILED)
 // #define MICROPY_REPL_EVENT_DRIVEN                  (1) // XXX investigate
 #define MICROPY_EVENT_POLL_HOOK                     do {} while (0);
-#define MICROPY_READER_VFS                          (0)
-#define MICROPY_VFS                                 (0)
-#define MICROPY_VFS_FAT                             (0)
 
 //
-// M68K options that can be set in <mpconfigboard.h>
+// M68K options that can / should be set in <mpconfigboard.h>
 //
 // #define M68K_EARLY_STARTUP_HOOK			// label to branch to to perform early startup - must chain to m68k_init
 // #define M68K_HAVE_FPU					// defined if FPU is used
@@ -36,14 +31,18 @@
 #define MICROPY_ENABLE_GC                           (1)
 #define MICROPY_GCREGS_SETJMP                       (1)
 #define MICROPY_FLOAT_IMPL                          (MICROPY_FLOAT_IMPL_FLOAT)
+//#define MICROPY_LONGINT_IMPL                        (MICROPY_LONGINT_IMPL_LONGLONG)   // requires stroll()
 #define MP_NEED_LOG2                                (1)     // not supplied by the float library
 #define MICROPY_PY_MACHINE                          (1)
 #define MICROPY_PY_MACHINE_TIMER                    (1)
 #define MICROPY_PY_MACHINE_DISABLE_IRQ_ENABLE_IRQ   (1)
 #define MICROPY_PY_MACHINE_INCLUDEFILE              "ports/m68k/modmachine.c"
 
-// Default alignment is 2; could use -malign-int to get 4-alignment but this seems to
+//
+// Default m68k alignment is 2; could use -malign-int to get 4-alignment but this seems to
 // trigger a crash in gcc 11.2.0 so align objects up instead.
+// This enables MICROPY_OBJ_REPR_A, the default.
+//
 #define MICROPY_OBJ_BASE_ALIGNMENT          __attribute__((aligned(4)))
 
 //

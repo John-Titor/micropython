@@ -53,6 +53,7 @@ SHARED_SRC_C += \
 	shared/runtime/pyexec.c \
 	shared/runtime/stdout_helpers.c \
 	shared/runtime/sys_stdio_mphal.c \
+	shared/timeutils/timeutils.c \
 
 LIBM_SRC_C = \
 	lib/libm/math.c \

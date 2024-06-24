@@ -1,6 +1,8 @@
 CPUTYPE			 = 68040
 CFLAGS			+= -mcpu=$(CPUTYPE) -DMICROPY_HW_MCU_NAME=\"$(CPUTYPE)\"
 
+MICROPY_VFS_FAT		 = 1
+
 SRC_C	+= \
 	$(BOARD_DIR)/board.c \
 	devices/ox16c954.c

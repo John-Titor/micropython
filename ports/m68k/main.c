@@ -40,6 +40,7 @@ gc_collect(void)
     gc_collect_end();
 }
 
+#if !MICROPY_VFS
 mp_lexer_t *
 mp_lexer_new_from_file(qstr filename)
 {
@@ -58,6 +59,7 @@ mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs)
     mp_raise_OSError(MP_EPERM);
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(mp_builtin_open_obj, 1, mp_builtin_open);
+#endif // !MICROPY_VFS
 
 void
 nlr_jump_fail(void *val)
